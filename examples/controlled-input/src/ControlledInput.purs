@@ -7,7 +7,7 @@ import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import React.Basic.DOM as R
 import React.Basic.DOM.Events (preventDefault, stopPropagation, targetValue, timeStamp)
 import React.Basic.Events (EventHandler, handler, merge)
-import React.Basic.Hooks (CreateComponent, Render, UseState, component, fragment, useState, (/\))
+import React.Basic.Hooks (CreateComponent, UseState, Hook, component, fragment, useState, (/\))
 import React.Basic.Hooks as React
 
 mkControlledInput :: CreateComponent {}
@@ -29,11 +29,9 @@ mkControlledInput = do
         ]
 
 useInput
-  :: forall hooks
-   . String
-  -> Render
-       hooks
-       (UseState { value :: String, lastChanged :: Maybe Number } hooks)
+  :: String
+  -> Hook
+       (UseState { value :: String, lastChanged :: Maybe Number })
        { onChange :: EventHandler
        , value :: String
        , lastChanged :: Maybe Number

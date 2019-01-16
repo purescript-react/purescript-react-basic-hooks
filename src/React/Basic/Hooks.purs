@@ -43,6 +43,8 @@ module React.Basic.Hooks
   , toKey
   , unsafeToKey
   , Render
+  , Pure
+  , Hook
   , bind
   , discard
   , pure
@@ -96,38 +98,36 @@ memo = flip Prelude.bind (runEffectFn1 memo_)
 foreign import data UseState :: Type -> Type -> Type
 
 useState
-  :: forall hooks state
+  :: forall state
    . state
-  -> Render hooks (UseState state hooks) (Tuple state ((state -> state) -> Effect Unit))
+  -> Hook (UseState state) (Tuple state ((state -> state) -> Effect Unit))
 useState initialState = Render do
   runEffectFn2 useState_ (mkFn2 Tuple) initialState
 
 foreign import data UseEffect :: Type -> Type
 
 useEffect
-  :: forall hooks
-   . Array Key
+  :: Array Key
   -> Effect (Effect Unit)
-  -> Render hooks (UseEffect hooks) Unit
+  -> Hook UseEffect Unit
 useEffect keys effect = Render (runEffectFn2 useEffect_ effect keys)
 
 foreign import data UseLayoutEffect :: Type -> Type
 
 useLayoutEffect
-  :: forall hooks
-   . Array Key
+  :: Array Key
   -> Effect (Effect Unit)
-  -> Render hooks (UseLayoutEffect hooks) Unit
+  -> Hook UseLayoutEffect Unit
 useLayoutEffect keys effect = Render (runEffectFn2 useLayoutEffect_ effect keys)
 
 foreign import data UseReducer :: Type -> Type -> Type -> Type
 
 useReducer
-  :: forall hooks state action
+  :: forall state action
    . ToKey state
   => state
   -> (state -> action -> state)
-  -> Render hooks (UseReducer state action hooks) (Tuple state (action -> Effect Unit))
+  -> Hook (UseReducer state action) (Tuple state (action -> Effect Unit))
 useReducer initialState reducer = Render do
   runEffectFn3 useReducer_
     (mkFn2 Tuple)
@@ -138,10 +138,7 @@ foreign import data UseRef :: Type -> Type -> Type
 
 foreign import data Ref :: Type -> Type
 
-useRef
-  :: forall hooks a
-   . a
-  -> Render hooks (UseRef a hooks) (Ref a)
+useRef :: forall a . a -> Hook (UseRef a) (Ref a)
 useRef initialValue = Render do
   runEffectFn1 useRef_ initialValue
 
@@ -154,20 +151,17 @@ readRefMaybe a = map toMaybe (readRef a)
 writeRef :: forall a. Ref a -> a -> Effect Unit
 writeRef = runEffectFn2 writeRef_
 
-renderRef :: forall hooks a. Ref a -> Render hooks hooks a
+renderRef :: forall a. Ref a -> Pure a
 renderRef ref = Render (readRef ref)
 
-renderRefMaybe :: forall hooks a. Ref (Nullable a) -> Render hooks hooks (Maybe a)
+renderRefMaybe :: forall a. Ref (Nullable a) -> Pure (Maybe a)
 renderRefMaybe a = Render (readRefMaybe a)
 
 foreign import data UseContext :: Type -> Type -> Type
 
 foreign import data Context :: Type -> Type
 
-useContext
-  :: forall hooks a
-   . Context a
-  -> Render hooks (UseContext a hooks) (Maybe a)
+useContext :: forall a . Context a -> Hook (UseContext a) (Maybe a)
 useContext context = Render (map toMaybe (runEffectFn1 useContext_ context))
 
 createContext :: forall a. a -> Effect (Context a)
@@ -178,11 +172,7 @@ contextProvider context a child = element (contextProvider_ context) { value: a,
 
 foreign import data UseMemo :: Type -> Type -> Type
 
-useMemo
-  :: forall hooks a
-   . Array Key
-  -> (Unit -> a)
-  -> Render hooks (UseMemo a hooks) a
+useMemo :: forall a . Array Key -> (Unit -> a) -> Hook (UseMemo a) a
 useMemo keys factory = Render (runEffectFn2 useMemo_ factory keys)
 
 -- | Keys represent values React uses to check for changes.
@@ -229,6 +219,10 @@ instance trMaybe :: ToKey (Maybe a) where
 -- | returning JSX (see `pure`), but does not allow arbitrary side
 -- | effects.
 newtype Render x y a = Render (Effect a)
+
+type Pure a = forall hooks. Render hooks hooks a
+
+type Hook (newHook :: Type -> Type) a = forall hooks. Render hooks (newHook hooks) a
 
 instance ixFunctorRender :: IxFunctor Render where
   imap f (Render a) = Render (map f a)
