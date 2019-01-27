@@ -15,9 +15,15 @@ exports.useState_ = function(tuple, initialState) {
   });
 };
 
-exports.useEffect_ = React.useEffect;
+exports.useEffect_ = function(eq, key, effect) {
+  var memoizedKey = exports.useMemo_(eq, key);
+  React.useEffect(effect, [memoizedKey]);
+};
 
-exports.useLayoutEffect_ = React.useLayoutEffect;
+exports.useLayoutEffect_ = function(eq, key, effect) {
+  var memoizedKey = exports.useMemo_(eq, key);
+  React.useLayoutEffect(effect, [memoizedKey]);
+};
 
 exports.useReducer_ = function(tuple, reducer, initialState, initialAction) {
   var r = React.useReducer(reducer, initialState, initialAction);
@@ -48,7 +54,18 @@ exports.contextProvider_ = function(context) {
   return context.Provider;
 };
 
-exports.useMemo_ = React.useMemo;
+exports.useMemo_ = function(eq, a) {
+  var memoRef = React.useRef(a);
+  if (memoRef.current !== a && !eq(memoRef.current, a)) {
+    memoRef.current = a;
+  }
+  return memoRef.current;
+};
+
+exports.useMemoLazy_ = function(eq, key, computeA) {
+  var memoizedKey = exports.useMemo_(eq, key);
+  return React.useMemo(computeA, [memoizedKey]);
+};
 
 exports.unsafeSetDisplayName = function(displayName, component) {
   component.displayName = displayName;

@@ -44,14 +44,14 @@ mkRefs = do
             }
         ]
 
-type UseNodeDistance hooks = UseEffect (UseState Int (UseRef (Nullable Node) hooks))
+type UseNodeDistance hooks = UseEffect Unit (UseState Int (UseRef (Nullable Node) hooks))
 
 useNodeDistanceFromMouse :: Hook UseNodeDistance (Tuple Int (Ref (Nullable Node)))
 useNodeDistanceFromMouse = React.do
   elementRef <- useRef null
   mouseDistance /\ setMouseDistance <- useState 0
 
-  useEffect [] do
+  useEffect unit do
     maybeElement <- map (HTMLElement.fromNode =<< _) (readRefMaybe elementRef)
     case maybeElement of
       Nothing -> pure (pure unit)

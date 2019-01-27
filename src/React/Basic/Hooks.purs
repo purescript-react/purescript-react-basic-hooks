@@ -38,10 +38,8 @@ module React.Basic.Hooks
   , contextProvider
   , UseMemo
   , useMemo
-  , Key
-  , class ToKey
-  , toKey
-  , unsafeToKey
+  , UseMemoLazy
+  , useMemoLazy
   , Render
   , Pure
   , Hook
@@ -54,7 +52,7 @@ module React.Basic.Hooks
   , module Data.Tuple.Nested
   ) where
 
-import Prelude hiding (bind,discard,pure)
+import Prelude hiding (bind, discard, pure)
 
 import Control.Applicative.Indexed (class IxApplicative, ipure)
 import Control.Apply.Indexed (class IxApply)
@@ -62,7 +60,7 @@ import Control.Bind.Indexed (class IxBind, ibind)
 import Data.Function.Uncurried (Fn2, mkFn2)
 import Data.Functor.Indexed (class IxFunctor)
 import Data.Maybe (Maybe)
-import Data.Nullable (Nullable, toMaybe, toNullable)
+import Data.Nullable (Nullable, toMaybe)
 import Data.Tuple (Tuple(..))
 import Data.Tuple.Nested (tuple2, (/\))
 import Effect (Effect)
@@ -104,28 +102,31 @@ useState
 useState initialState = Render do
   runEffectFn2 useState_ (mkFn2 Tuple) initialState
 
-foreign import data UseEffect :: Type -> Type
+foreign import data UseEffect :: Type -> Type -> Type
 
 useEffect
-  :: Array Key
+  :: forall key
+   . Eq key
+  => key
   -> Effect (Effect Unit)
-  -> Hook UseEffect Unit
-useEffect keys effect = Render (runEffectFn2 useEffect_ effect keys)
+  -> Hook (UseEffect key) Unit
+useEffect key effect = Render (runEffectFn3 useEffect_ (mkFn2 eq) key effect)
 
-foreign import data UseLayoutEffect :: Type -> Type
+foreign import data UseLayoutEffect :: Type -> Type -> Type
 
 useLayoutEffect
-  :: Array Key
+  :: forall key
+   . Eq key
+  => key
   -> Effect (Effect Unit)
-  -> Hook UseLayoutEffect Unit
-useLayoutEffect keys effect = Render (runEffectFn2 useLayoutEffect_ effect keys)
+  -> Hook (UseLayoutEffect key) Unit
+useLayoutEffect keys effect = Render (runEffectFn3 useLayoutEffect_ (mkFn2 eq) keys effect)
 
 foreign import data UseReducer :: Type -> Type -> Type -> Type
 
 useReducer
   :: forall state action
-   . ToKey state
-  => state
+   . state
   -> (state -> action -> state)
   -> Hook (UseReducer state action) (Tuple state (action -> Effect Unit))
 useReducer initialState reducer = Render do
@@ -172,47 +173,23 @@ contextProvider context a child = element (contextProvider_ context) { value: a,
 
 foreign import data UseMemo :: Type -> Type -> Type
 
-useMemo :: forall a . Array Key -> (Unit -> a) -> Hook (UseMemo a) a
-useMemo keys factory = Render (runEffectFn2 useMemo_ factory keys)
+useMemo
+  :: forall a
+   . Eq a
+  => a
+  -> a
+  -> Hook (UseMemo a) a
+useMemo key a = Render (runEffectFn2 useMemo_ (mkFn2 eq) a)
 
--- | Keys represent values React uses to check for changes.
--- | This is done using JavaScript's reference equality (`===`),
--- | so complicated types may want to implement `ToKey` so that
--- | it returns a primative like a `String`. A timestamp appended
--- | to a unique ID, for example. Less strict cases can implement
--- | `ToKey` using `unsafeToKey`, while some extreme cases may
--- | need a hashing or stringifying mechanism.
-data Key
+foreign import data UseMemoLazy :: Type -> Type -> Type
 
-class ToKey a where
-  toKey :: a -> Key
-
-unsafeToKey :: forall a. a -> Key
-unsafeToKey = unsafeCoerce
-
-instance trString :: ToKey String where
-  toKey = unsafeToKey
-
-instance trInt :: ToKey Int where
-  toKey = unsafeToKey
-
-instance trNumber :: ToKey Number where
-  toKey = unsafeToKey
-
-instance trBoolean :: ToKey Boolean where
-  toKey = unsafeToKey
-
-instance trRecord :: ToKey (Record a) where
-  toKey = unsafeToKey
-
-instance trArray :: ToKey (Array a) where
-  toKey = unsafeToKey
-
-instance trNullable :: ToKey (Nullable a) where
-  toKey = unsafeToKey
-
-instance trMaybe :: ToKey (Maybe a) where
-  toKey a = toKey (toNullable a)
+useMemoLazy
+  :: forall key a
+   . Eq key
+  => key
+  -> (Unit -> a)
+  -> Hook (UseMemoLazy a) a
+useMemoLazy key computeA = Render (runEffectFn3 useMemoLazy_ (mkFn2 eq) key computeA)
 
 -- | Render represents the effects allowed within a React component's
 -- | body, i.e. during "render". This includes hooks and ends with
@@ -277,15 +254,19 @@ foreign import useState_
        (Tuple state ((state -> state) -> Effect Unit))
 
 foreign import useEffect_
-  :: EffectFn2
+  :: forall key
+   . EffectFn3
+       (Fn2 key key Boolean)
+       key
        (Effect (Effect Unit))
-       (Array Key)
        Unit
 
 foreign import useLayoutEffect_
-  :: EffectFn2
+  :: forall key
+   . EffectFn3
+       (Fn2 key key Boolean)
+       key
        (Effect (Effect Unit))
-       (Array Key)
        Unit
 
 foreign import useReducer_
@@ -335,6 +316,14 @@ foreign import contextProvider_
 foreign import useMemo_
   :: forall a
    . EffectFn2
+       (Fn2 a a Boolean)
+       a
+       a
+
+foreign import useMemoLazy_
+  :: forall key a
+   . EffectFn3
+       (Fn2 key key Boolean)
+       key
        (Unit -> a)
-       (Array Key)
        a
