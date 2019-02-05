@@ -40,41 +40,46 @@ module React.Basic.Hooks
   , useMemo
   , UseMemoLazy
   , useMemoLazy
+  , UnsafeReference(..)
   , Render
   , Pure
   , Hook
   , bind
   , discard
-  , pure
   , displayName
   , module React.Basic
   , module Data.Tuple
   , module Data.Tuple.Nested
   ) where
 
-import Prelude hiding (bind, discard, pure)
+import Prelude hiding (bind, discard)
 
-import Control.Applicative.Indexed (class IxApplicative, ipure)
+import Control.Applicative.Indexed (class IxApplicative)
 import Control.Apply.Indexed (class IxApply)
 import Control.Bind.Indexed (class IxBind, ibind)
 import Data.Function.Uncurried (Fn2, mkFn2)
 import Data.Functor.Indexed (class IxFunctor)
 import Data.Maybe (Maybe)
+import Data.Newtype (class Newtype)
 import Data.Nullable (Nullable, toMaybe)
 import Data.Tuple (Tuple(..))
 import Data.Tuple.Nested (tuple2, (/\))
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, mkEffectFn1, runEffectFn1, runEffectFn2, runEffectFn3)
-import Prelude (bind, pure) as Prelude
+import Prelude (bind) as Prelude
 import React.Basic (JSX, ReactComponent, empty, keyed, fragment, element, elementKeyed)
+import Type.Equality (class TypeEquals)
 import Unsafe.Coerce (unsafeCoerce)
+import Unsafe.Reference (unsafeRefEq)
 
--- | Alias for convenience. Creating components is effectful because
--- | React uses the function instance as the component's "identity"
--- | or "type".
+-- | Alias for convenience.
 type CreateComponent props = Effect (ReactComponent props)
 
 -- | Create a React component given a display name and render function.
+-- | Creating components is effectful because React uses the function
+-- | instance as the component's "identity" or "type". Components should
+-- | be created during a bootstrap phase and not within component
+-- | lifecycles or render functions.
 component
   :: forall hooks props
    . String
@@ -191,6 +196,11 @@ useMemoLazy
   -> Hook (UseMemoLazy a) a
 useMemoLazy key computeA = Render (runEffectFn3 useMemoLazy_ (mkFn2 eq) key computeA)
 
+newtype UnsafeReference a = UnsafeReference a
+derive instance newtypeUnsafeReference :: Newtype (UnsafeReference a) _
+instance eqUnsafeReference :: Eq (UnsafeReference a) where
+  eq = unsafeRefEq
+
 -- | Render represents the effects allowed within a React component's
 -- | body, i.e. during "render". This includes hooks and ends with
 -- | returning JSX (see `pure`), but does not allow arbitrary side
@@ -207,20 +217,32 @@ instance ixFunctorRender :: IxFunctor Render where
 instance ixApplyRender :: IxApply Render where
   iapply (Render f) (Render a) = Render (apply f a)
 
+instance ixApplicativeRender :: IxApplicative Render where
+  ipure a = Render (pure a)
+
 instance ixBindRender :: IxBind Render where
   ibind (Render m) f = Render (Prelude.bind m \a -> case f a of Render b -> b)
 
-instance ixApplicativeRender :: IxApplicative Render where
-  ipure a = Render (Prelude.pure a)
-
+-- | Exported for use with qualified-do syntax
 bind :: forall a b x y z m. IxBind m => m x y a -> (a -> m y z b) -> m x z b
 bind = ibind
 
+-- | Exported for use with qualified-do syntax
 discard :: forall a b x y z m. IxBind m => m x y a -> (a -> m y z b) -> m x z b
 discard = ibind
 
-pure :: forall a x m. IxApplicative m => a -> m x x a
-pure = ipure
+instance functorRender :: Functor (Render x y) where
+  map f (Render a) = Render (map f a)
+
+instance applyRender :: TypeEquals x y => Apply (Render x y) where
+  apply (Render f) (Render a) = Render (apply f a)
+
+instance applicativeRender :: TypeEquals x y => Applicative (Render x y) where
+  pure a = Render (pure a)
+
+instance bindRender :: TypeEquals x y => Bind (Render x y) where
+  bind (Render m) f = Render (Prelude.bind m \a -> case f a of Render b -> b)
+
 
 -- | Retrieve the Display Name from a `ReactComponent`. Useful for debugging and improving
 -- | error messages in logs.

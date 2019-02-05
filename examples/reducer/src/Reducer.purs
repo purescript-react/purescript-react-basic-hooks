@@ -20,7 +20,7 @@ mkReducer = do
         Increment -> state { counter = state.counter + 1 }
         Decrement -> state { counter = state.counter - 1 }
 
-    React.pure $ fragment
+    pure $ fragment
       [ R.button
           { onClick: handler_ $ dispatch Decrement
           , children: [ R.text $ "Decrement" ]

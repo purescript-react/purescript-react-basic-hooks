@@ -17,7 +17,7 @@ mkToggleButton = do
       log $ "State: " <> if on then "On" else "Off"
       pure (pure unit)
 
-    React.pure $ R.button
+    pure $ R.button
       { onClick: handler_ $ setOn not
       , children:
           [ R.text label

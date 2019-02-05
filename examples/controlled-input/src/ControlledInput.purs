@@ -2,7 +2,6 @@ module ControlledInput where
 
 import Prelude
 
-import Control.Applicative.Indexed (ipure)
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import React.Basic.DOM as R
 import React.Basic.DOM.Events (preventDefault, stopPropagation, targetValue, timeStamp)
@@ -16,7 +15,7 @@ mkControlledInput = do
     firstName <- useInput "hello"
     lastName <- useInput "world"
 
-    React.pure $ R.form_
+    pure $ R.form_
       [ renderInput firstName
       , renderInput lastName
       ]
@@ -38,7 +37,7 @@ useInput
        }
 useInput initialValue = React.do
   { value, lastChanged } /\ replaceState <- useState { value: initialValue, lastChanged: Nothing }
-  ipure
+  pure
     { onChange: handler
         (preventDefault >>> stopPropagation >>> merge { targetValue, timeStamp })
         \{ timeStamp, targetValue } -> do

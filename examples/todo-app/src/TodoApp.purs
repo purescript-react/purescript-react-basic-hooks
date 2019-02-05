@@ -67,7 +67,7 @@ mkTodoApp = do
 
   component "TodoApp" \props -> React.do
       state /\ dispatch <- useReducer initialState reducer
-      React.pure $ R.div
+      pure $ R.div
         { children:
             [ element todoInput { dispatch }
             , R.div_ $ flip Array.mapWithIndex state.todos \id todo ->
@@ -94,7 +94,7 @@ mkTodoInput :: CreateComponent { dispatch :: Action -> Effect Unit }
 mkTodoInput = do
   component "TodoInput" \props -> React.do
     value /\ setValue <- useState ""
-    React.pure $ R.form
+    pure $ R.form
       { onSubmit: handler (preventDefault >>> stopPropagation) \_ -> do
           props.dispatch $ CreateTodo value
           setValue $ const ""
@@ -113,7 +113,7 @@ mkTodoInput = do
 
 mkTodoRow :: CreateComponent { id :: Int, todo :: Todo, dispatch :: Action -> Effect Unit }
 mkTodoRow = component "Todo" \props -> React.do
-  React.pure $ R.div
+  pure $ R.div
     { children:
         [ R.label
             { children:
@@ -150,7 +150,7 @@ mkTodoFilters = component "TodoFilters" \props -> React.do
           then R.css { cursor: "pointer", fontWeight: "bold" }
           else R.css { cursor: "pointer" }
       }
-  React.pure $ R.div
+  pure $ R.div
     { children:
         [ R.hr { style: R.css { color: "lightgrey" } }
         , filterLink All "All"

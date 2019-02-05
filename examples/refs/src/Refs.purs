@@ -22,27 +22,27 @@ mkRefs :: CreateComponent {}
 mkRefs = do
   component "Refs" \props -> React.do
 
-      mouseDistance1 /\ buttonRef1 <- useNodeDistanceFromMouse
-      mouseDistance2 /\ buttonRef2 <- useNodeDistanceFromMouse
-      mouseDistance3 /\ buttonRef3 <- useNodeDistanceFromMouse
+    mouseDistance1 /\ buttonRef1 <- useNodeDistanceFromMouse
+    mouseDistance2 /\ buttonRef2 <- useNodeDistanceFromMouse
+    mouseDistance3 /\ buttonRef3 <- useNodeDistanceFromMouse
 
-      React.pure $ fragment
-        [ element (R.unsafeCreateDOMComponent "button")
-            { ref: buttonRef1
-            , children: [ R.text $ show mouseDistance1 <> "px" ]
-            , style: R.css { width: "100px", position: "absolute", top: "20px", left: "200px" }
-            }
-        , element (R.unsafeCreateDOMComponent "button")
-            { ref: buttonRef2
-            , children: [ R.text $ show mouseDistance2 <> "px" ]
-            , style: R.css { width: "100px", position: "absolute", top: "60px", left: "40px" }
-            }
-        , element (R.unsafeCreateDOMComponent "button")
-            { ref: buttonRef3
-            , children: [ R.text $ show mouseDistance3 <> "px" ]
-            , style: R.css { width: "100px", position: "absolute", top: "120px", left: "90px" }
-            }
-        ]
+    pure $ fragment
+      [ element (R.unsafeCreateDOMComponent "button")
+          { ref: buttonRef1
+          , children: [ R.text $ show mouseDistance1 <> "px" ]
+          , style: R.css { width: "100px", position: "absolute", top: "20px", left: "200px" }
+          }
+      , element (R.unsafeCreateDOMComponent "button")
+          { ref: buttonRef2
+          , children: [ R.text $ show mouseDistance2 <> "px" ]
+          , style: R.css { width: "100px", position: "absolute", top: "60px", left: "40px" }
+          }
+      , element (R.unsafeCreateDOMComponent "button")
+          { ref: buttonRef3
+          , children: [ R.text $ show mouseDistance3 <> "px" ]
+          , style: R.css { width: "100px", position: "absolute", top: "120px", left: "90px" }
+          }
+      ]
 
 type UseNodeDistance hooks = UseEffect Unit (UseState Int (UseRef (Nullable Node) hooks))
 
@@ -82,4 +82,4 @@ useNodeDistanceFromMouse = React.do
         pure do
           removeEventListener mouseMoveEventType mouseMoveListener false windowEventTarget
 
-  React.pure (mouseDistance /\ elementRef)
+  pure (mouseDistance /\ elementRef)
