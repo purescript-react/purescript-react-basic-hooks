@@ -83,8 +83,8 @@ type CreateComponent props = Effect (ReactComponent props)
 component
   :: forall hooks props
    . String
-  -> (props -> Render Unit hooks JSX)
-  -> CreateComponent props
+  -> ({ | props } -> Render Unit hooks JSX)
+  -> CreateComponent { | props }
 component name renderFn =
   let c = unsafeReactFunctionComponent (mkEffectFn1 (\props -> case renderFn props of Render a -> a))
    in runEffectFn2 unsafeSetDisplayName name c
