@@ -48,7 +48,7 @@ exports.writeRef_ = function(ref, a) {
 
 exports.useContext_ = React.useContext;
 
-exports.createContext_ = React.createContext;
+exports.createContext = React.createContext;
 
 exports.contextProvider_ = function(context) {
   return context.Provider;

@@ -170,8 +170,7 @@ foreign import data Context :: Type -> Type
 useContext :: forall a . Context a -> Hook (UseContext a) (Maybe a)
 useContext context = Render (map toMaybe (runEffectFn1 useContext_ context))
 
-createContext :: forall a. a -> Effect (Context a)
-createContext = runEffectFn1 createContext_
+foreign import createContext :: forall a. Effect (Context a)
 
 contextProvider :: forall a. Context a -> a -> JSX -> JSX
 contextProvider context a child = element (contextProvider_ context) { value: a, children: child }
@@ -323,12 +322,6 @@ foreign import useContext_
    . EffectFn1
        (Context a)
        (Nullable a)
-
-foreign import createContext_
-  :: forall a
-   . EffectFn1
-       a
-       (Context a)
 
 foreign import contextProvider_
   :: forall a
