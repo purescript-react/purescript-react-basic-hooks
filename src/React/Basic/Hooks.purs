@@ -242,6 +242,11 @@ instance applicativeRender :: TypeEquals x y => Applicative (Render x y) where
 instance bindRender :: TypeEquals x y => Bind (Render x y) where
   bind (Render m) f = Render (Prelude.bind m \a -> case f a of Render b -> b)
 
+instance semigroupRender :: (TypeEquals x y, Semigroup a) => Semigroup (Render x y a) where
+  append (Render a) (Render b) = Render (append a b)
+
+instance monoidRender :: (TypeEquals x y, Monoid a) => Monoid (Render x y a) where
+  mempty = Render mempty
 
 -- | Retrieve the Display Name from a `ReactComponent`. Useful for debugging and improving
 -- | error messages in logs.
