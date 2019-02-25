@@ -2,8 +2,8 @@
 
 This is an experimental implementation of React hooks on [react-basic](https://github.com/lumihq/purescript-react-basic).
 
-*Warning:* This API is *experimental* and relies on alpha-release React versions.
-It's here to allow experimentation while we get feedback on the API and wait for an official React release which supports hooks.
+*Warning:* This API is *experimental* and relies on recent React versions (>= 16.8.0).
+It's here to allow experimentation while we get feedback on the API.
 For more info on hooks, see [React's documentation](https://reactjs.org/docs/hooks-intro.html).
 
 I recommend using PureScript's new "qualified do" syntax while using this library (it's used in the examples, the `React.do` bits).
