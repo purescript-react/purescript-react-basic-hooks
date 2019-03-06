@@ -1,4 +1,4 @@
-# react-basic-hooks
+# react-basic-hooks [![CircleCI](https://circleci.com/gh/spicydonuts/purescript-react-basic-hooks.svg?style=svg)](https://circleci.com/gh/spicydonuts/purescript-react-basic-hooks)
 
 This is an experimental implementation of React hooks on [react-basic](https://github.com/lumihq/purescript-react-basic).
 
