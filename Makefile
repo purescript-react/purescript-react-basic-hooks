@@ -10,6 +10,6 @@ bower_components: node_modules
 	npx bower --allow-root install
 
 node_modules:
-	npm i --no-save bower pulp
+	npm i --no-save bower pulp purescript
 
 .PHONY: build examples
