@@ -177,24 +177,24 @@ foreign import createContext :: forall a. Effect (Context a)
 contextProvider :: forall a. Context a -> a -> JSX -> JSX
 contextProvider context a child = element (contextProvider_ context) { value: a, children: child }
 
-foreign import data UseMemo :: Type -> Type -> Type
+foreign import data UseMemo :: Type -> Type -> Type -> Type
 
 useMemo
   :: forall key a
    . Eq key
   => key
   -> (Unit -> a)
-  -> Hook (UseMemo a) a
+  -> Hook (UseMemo key a) a
 useMemo key computeA = Render (runEffectFn3 useMemo_ (mkFn2 eq) key computeA)
 
-foreign import data UseCallback :: Type -> Type -> Type
+foreign import data UseCallback :: Type -> Type -> Type -> Type
 
 useCallback
   :: forall key a
    . Eq key
   => key
   -> a
-  -> Hook (UseCallback a) a
+  -> Hook (UseCallback key a) a
 useCallback key computeA = Render (runEffectFn3 useCallback_ (mkFn2 eq) key computeA)
 
 foreign import data UseEqCache :: Type -> Type -> Type
@@ -203,7 +203,7 @@ useEqCache
   :: forall a
    . Eq a
   => a
-  -> Hook (UseCallback a) a
+  -> Hook (UseCallback a a) a
 useEqCache a = Render (runEffectFn2 useEqCache_ (mkFn2 eq) a)
 
 newtype UnsafeReference a = UnsafeReference a
