@@ -1,12 +1,12 @@
 # react-basic-hooks [![CircleCI](https://circleci.com/gh/spicydonuts/purescript-react-basic-hooks.svg?style=svg)](https://circleci.com/gh/spicydonuts/purescript-react-basic-hooks)
 
-This is an experimental implementation of React hooks on [react-basic](https://github.com/lumihq/purescript-react-basic).
+This is library adds React hooks to [react-basic](https://github.com/lumihq/purescript-react-basic).
 
-*Warning:* This API relies on recent React versions (>= 16.8.0).
+_Warning:_ This API relies on recent React versions (>= 16.8.0).
 For more info on hooks, see [React's documentation](https://reactjs.org/docs/hooks-intro.html).
 
 I recommend using PureScript's new "qualified do" syntax while using this library (it's used in the examples, the `React.do` bits).
-It became available in the  `0.12.2` compiler release.
+It became available in the `0.12.2` compiler release.
 
 This library provides the `React.Basic.Hooks` module, which can completely replace the `React.Basic` module.
 It borrows a few types from the current `React.Basic` module like `ReactComponent` and `JSX` to make it easy to use both versions in the same project.
@@ -34,7 +34,9 @@ More examples:
 - Components: [Parent](./examples/component/src/Container.purs) and [Child](./examples/component/src/ToggleButton.purs)
 - [Refs to DOM nodes](./examples/refs/src/Refs.purs) (and extracting hook logic from a component for reuse)
 - [A Todo App](./examples/todo-app/src/TodoApp.purs) (components, inputs, state)
+- [Context](./examples/context/src/Context.purs) (creating and consuming React context)
+- [Aff helper](./examples/aff/src/AffEx.purs) (async state management)
 
-*A note on Refs:* The `Ref` type is useful for all kinds of state (anything which shouldn't trigger a render when changed), particularly references to DOM nodes as in the example.
+_A note on Refs:_ The `Ref` type is useful for all kinds of state (anything which shouldn't trigger a render when changed), particularly references to DOM nodes as in the example.
 Unfortunately, while this module remains a small extension to the existing react-basic library it won't be possible to pass a `ref` prop to the native DOM components from `React.Basic.DOM`.
 In the meantime, use `element (unsafeCreateDOMComponent "div") { ref: elementRef }`.
