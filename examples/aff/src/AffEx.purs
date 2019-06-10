@@ -15,9 +15,10 @@ import React.Basic.Hooks.ResetToken (useResetToken)
 mkAffEx :: CreateComponent {}
 mkAffEx = do
   component "AffEx" \props -> React.do
+    let id = 0 -- pretend this is a prop
     resetToken /\ reset <- useResetToken
-    r1 <- useAff resetToken delayedSuccess
-    r2 <- useAff resetToken delayedFailure
+    r1 <- useAff (id /\ resetToken) delayedSuccess
+    r2 <- useAff (id /\ resetToken) delayedFailure
 
     pure $ fragment
       [ R.button
