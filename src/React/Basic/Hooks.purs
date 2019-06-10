@@ -38,8 +38,10 @@ module React.Basic.Hooks
   , contextProvider
   , UseMemo
   , useMemo
-  , UseMemoLazy
-  , useMemoLazy
+  , UseCallback
+  , useCallback
+  , UseEqCache
+  , useEqCache
   , UnsafeReference(..)
   , Render
   , Pure
@@ -178,22 +180,31 @@ contextProvider context a child = element (contextProvider_ context) { value: a,
 foreign import data UseMemo :: Type -> Type -> Type
 
 useMemo
-  :: forall a
-   . Eq a
-  => a
-  -> a
-  -> Hook (UseMemo a) a
-useMemo key a = Render (runEffectFn2 useMemo_ (mkFn2 eq) a)
-
-foreign import data UseMemoLazy :: Type -> Type -> Type
-
-useMemoLazy
   :: forall key a
    . Eq key
   => key
   -> (Unit -> a)
-  -> Hook (UseMemoLazy a) a
-useMemoLazy key computeA = Render (runEffectFn3 useMemoLazy_ (mkFn2 eq) key computeA)
+  -> Hook (UseMemo a) a
+useMemo key computeA = Render (runEffectFn3 useMemo_ (mkFn2 eq) key computeA)
+
+foreign import data UseCallback :: Type -> Type -> Type
+
+useCallback
+  :: forall key a
+   . Eq key
+  => key
+  -> a
+  -> Hook (UseCallback a) a
+useCallback key computeA = Render (runEffectFn3 useCallback_ (mkFn2 eq) key computeA)
+
+foreign import data UseEqCache :: Type -> Type -> Type
+
+useEqCache
+  :: forall a
+   . Eq a
+  => a
+  -> Hook (UseCallback a) a
+useEqCache a = Render (runEffectFn2 useEqCache_ (mkFn2 eq) a)
 
 newtype UnsafeReference a = UnsafeReference a
 derive instance newtypeUnsafeReference :: Newtype (UnsafeReference a) _
@@ -334,16 +345,24 @@ foreign import contextProvider_
   -> ReactComponent { value :: a, children :: JSX }
 
 foreign import useMemo_
-  :: forall a
-   . EffectFn2
-       (Fn2 a a Boolean)
-       a
-       a
-
-foreign import useMemoLazy_
   :: forall key a
    . EffectFn3
        (Fn2 key key Boolean)
        key
        (Unit -> a)
+       a
+
+foreign import useCallback_
+  :: forall key a
+   . EffectFn3
+       (Fn2 key key Boolean)
+       key
+       a
+       a
+
+foreign import useEqCache_
+  :: forall a
+   . EffectFn2
+       (Fn2 a a Boolean)
+       a
        a
