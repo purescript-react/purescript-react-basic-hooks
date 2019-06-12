@@ -10,14 +10,16 @@ import React.Basic.Hooks (Hook, UseEffect, UseState, useEffect, useState, (/\))
 import React.Basic.Hooks as React
 
 type UseAff key a hooks =
-  UseEffect key (UseState (Maybe (Either Error a)) hooks)
+  UseEffect key (UseState (Result a) hooks)
+
+type Result a = Maybe (Either Error a)
 
 useAff
   :: forall key a
    . Eq key
   => key
   -> Aff a
-  -> Hook (UseAff key a) (Maybe (Either Error a))
+  -> Hook (UseAff key a) (Result a)
 useAff key aff = React.do
   result /\ setResult <- useState Nothing
   useEffect key do

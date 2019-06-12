@@ -7,7 +7,7 @@ import Data.Maybe (Maybe(..))
 import Data.Nullable (Nullable, null)
 import Math (pow, sqrt)
 import React.Basic.DOM as R
-import React.Basic.Hooks (CreateComponent, Ref, Tuple, UseEffect, UseRef, UseState, Hook, component, element, fragment, readRefMaybe, useEffect, useRef, useState, (/\))
+import React.Basic.Hooks (CreateComponent, Ref, UseEffect, UseRef, UseState, Hook, type (/\), component, element, fragment, readRefMaybe, useEffect, useRef, useState, (/\))
 import React.Basic.Hooks as React
 import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM (Node)
@@ -46,7 +46,7 @@ mkRefs = do
 
 type UseNodeDistance hooks = UseEffect Unit (UseState Int (UseRef (Nullable Node) hooks))
 
-useNodeDistanceFromMouse :: Hook UseNodeDistance (Tuple Int (Ref (Nullable Node)))
+useNodeDistanceFromMouse :: Hook UseNodeDistance (Int /\ (Ref (Nullable Node)))
 useNodeDistanceFromMouse = React.do
   elementRef <- useRef null
   mouseDistance /\ setMouseDistance <- useState 0

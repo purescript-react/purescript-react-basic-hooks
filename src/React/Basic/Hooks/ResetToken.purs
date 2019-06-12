@@ -8,14 +8,16 @@ import Prelude
 
 import Effect (Effect)
 import Effect.Unsafe (unsafePerformEffect)
-import React.Basic.Hooks (Hook, Tuple, UseState, useState, (/\))
+import React.Basic.Hooks (Hook, UseState, type (/\), useState, (/\))
 import React.Basic.Hooks as React
 import Unsafe.Coerce (unsafeCoerce)
 import Unsafe.Reference (unsafeRefEq)
 
 type UseResetToken = UseState ResetToken
 
-useResetToken :: Hook UseResetToken (Tuple ResetToken (Effect Unit))
+-- Useful for resetting effects or component state in place of a
+-- real key, i.e. a "reset" or "force rerender" button.
+useResetToken :: Hook UseResetToken (ResetToken /\ (Effect Unit))
 useResetToken = React.do
   resetToken /\ setResetToken <- useState initialResetToken
   let

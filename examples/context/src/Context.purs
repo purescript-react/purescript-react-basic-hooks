@@ -6,7 +6,7 @@ import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import React.Basic.DOM as R
 import React.Basic.Events (handler_)
-import React.Basic.Hooks (Context, CreateComponent, JSX, Tuple, component, contextProvider, createContext, element, fragment, useContext, useState, (/\))
+import React.Basic.Hooks (Context, CreateComponent, JSX, type (/\), component, contextProvider, createContext, element, fragment, useContext, useState, (/\))
 import React.Basic.Hooks as React
 
 mkContext :: CreateComponent {}
@@ -27,7 +27,7 @@ mkContext = do
       }
 
 mkStore
-  :: Context (Tuple Int (Effect Unit))
+  :: Context (Int /\ (Effect Unit))
   -> CreateComponent { children :: Array JSX }
 mkStore context = do
   component "Store" \{ children } -> React.do
@@ -39,7 +39,7 @@ mkStore context = do
         (fragment children)
 
 mkCounter
-  :: Context (Tuple Int (Effect Unit))
+  :: Context (Int /\ (Effect Unit))
   -> CreateComponent {}
 mkCounter counterContext = do
   component "Counter" \props -> React.do

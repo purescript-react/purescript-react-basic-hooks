@@ -50,11 +50,10 @@ module React.Basic.Hooks
   , discard
   , displayName
   , module React.Basic
-  , module Data.Tuple
   , module Data.Tuple.Nested
   ) where
 
-import Prelude hiding (bind, discard)
+import Prelude hiding (bind,discard)
 
 import Control.Applicative.Indexed (class IxApplicative)
 import Control.Apply.Indexed (class IxApply)
@@ -65,10 +64,11 @@ import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import Data.Nullable (Nullable, toMaybe)
 import Data.Tuple (Tuple(..))
-import Data.Tuple.Nested (tuple2, (/\))
+import Data.Tuple.Nested (type (/\), (/\))
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, mkEffectFn1, runEffectFn1, runEffectFn2, runEffectFn3)
 import Prelude (bind) as Prelude
+import Prim.Row (class Lacks)
 import React.Basic (JSX, ReactComponent, empty, keyed, fragment, element, elementKeyed)
 import Type.Equality (class TypeEquals)
 import Unsafe.Coerce (unsafeCoerce)
@@ -84,7 +84,9 @@ type CreateComponent props = Effect (ReactComponent props)
 -- | lifecycles or render functions.
 component
   :: forall hooks props
-   . String
+   . Lacks "key" props
+  => Lacks "ref" props
+  => String
   -> ({ | props } -> Render Unit hooks JSX)
   -> CreateComponent { | props }
 component name renderFn =
@@ -105,7 +107,7 @@ foreign import data UseState :: Type -> Type -> Type
 useState
   :: forall state
    . state
-  -> Hook (UseState state) (Tuple state ((state -> state) -> Effect Unit))
+  -> Hook (UseState state) (state /\ ((state -> state) -> Effect Unit))
 useState initialState = Render do
   runEffectFn2 useState_ (mkFn2 Tuple) initialState
 
@@ -135,7 +137,7 @@ useReducer
   :: forall state action
    . state
   -> (state -> action -> state)
-  -> Hook (UseReducer state action) (Tuple state (action -> Effect Unit))
+  -> Hook (UseReducer state action) (state /\ (action -> Effect Unit))
 useReducer initialState reducer = Render do
   runEffectFn3 useReducer_
     (mkFn2 Tuple)
@@ -286,9 +288,9 @@ foreign import unsafeSetDisplayName
 foreign import useState_
   :: forall state
    . EffectFn2
-       (forall a b. Fn2 a b (Tuple a b))
+       (forall a b. Fn2 a b (a /\ b))
        state
-       (Tuple state ((state -> state) -> Effect Unit))
+       (state /\ ((state -> state) -> Effect Unit))
 
 foreign import useEffect_
   :: forall key
@@ -309,10 +311,10 @@ foreign import useLayoutEffect_
 foreign import useReducer_
   :: forall state action
    . EffectFn3
-       (forall a b. Fn2 a b (Tuple a b))
+       (forall a b. Fn2 a b (a /\ b))
        (Fn2 state action state)
        state
-       (Tuple state (action -> Effect Unit))
+       (state /\ (action -> Effect Unit))
 
 foreign import readRef_
   :: forall a
