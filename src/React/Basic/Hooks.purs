@@ -113,6 +113,8 @@ useState initialState = Render do
 
 foreign import data UseEffect :: Type -> Type -> Type
 
+-- | The effect will be run when the component is mounted, and the effect
+-- | returned from the function will be run on cleanup
 useEffect
   :: forall key
    . Eq key
