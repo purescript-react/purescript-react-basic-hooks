@@ -24,7 +24,6 @@ module React.Basic.Hooks
   , UseReducer
   , useReducer
   , UseRef
-  , Ref
   , readRef
   , readRefMaybe
   , writeRef
@@ -32,10 +31,7 @@ module React.Basic.Hooks
   , renderRefMaybe
   , useRef
   , UseContext
-  , Context
   , useContext
-  , createContext
-  , contextProvider
   , UseMemo
   , useMemo
   , UseCallback
@@ -53,8 +49,7 @@ module React.Basic.Hooks
   , module Data.Tuple.Nested
   ) where
 
-import Prelude hiding (bind,discard)
-
+import Prelude hiding (bind, discard)
 import Control.Applicative.Indexed (class IxApplicative)
 import Control.Apply.Indexed (class IxApply)
 import Control.Bind.Indexed (class IxBind, ibind)
@@ -69,90 +64,94 @@ import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, mkEffectFn1, runEffectFn1, runEffectFn2, runEffectFn3)
 import Prelude (bind) as Prelude
 import Prim.Row (class Lacks)
-import React.Basic (JSX, ReactComponent, empty, keyed, fragment, element, elementKeyed)
+import React.Basic (JSX, ReactComponent, ReactContext, Ref, consumer, contextConsumer, contextProvider, createContext, element, elementKeyed, empty, keyed, fragment, provider)
 import Type.Equality (class TypeEquals)
 import Unsafe.Coerce (unsafeCoerce)
 import Unsafe.Reference (unsafeRefEq)
 
 -- | Alias for convenience.
-type CreateComponent props = Effect (ReactComponent props)
+type CreateComponent props
+  = Effect (ReactComponent props)
 
 -- | Create a React component given a display name and render function.
 -- | Creating components is effectful because React uses the function
 -- | instance as the component's "identity" or "type". Components should
 -- | be created during a bootstrap phase and not within component
 -- | lifecycles or render functions.
-component
-  :: forall hooks props
-   . Lacks "key" props
-  => Lacks "ref" props
-  => String
-  -> ({ | props } -> Render Unit hooks JSX)
-  -> CreateComponent { | props }
+component ::
+  forall hooks props.
+  Lacks "key" props =>
+  Lacks "ref" props =>
+  String ->
+  ({ | props } -> Render Unit hooks JSX) ->
+  CreateComponent { | props }
 component name renderFn =
-  let c = unsafeReactFunctionComponent (mkEffectFn1 (\props -> case renderFn props of Render a -> a))
-   in runEffectFn2 unsafeSetDisplayName name c
+  let
+    c = unsafeReactFunctionComponent (mkEffectFn1 (\props -> case renderFn props of Render a -> a))
+  in
+    runEffectFn2 unsafeSetDisplayName name c
 
 unsafeReactFunctionComponent :: forall props. EffectFn1 props JSX -> ReactComponent props
 unsafeReactFunctionComponent = unsafeCoerce
 
-memo
-  :: forall props
-   . CreateComponent props
-  -> CreateComponent props
+memo ::
+  forall props.
+  CreateComponent props ->
+  CreateComponent props
 memo = flip Prelude.bind (runEffectFn1 memo_)
 
 foreign import data UseState :: Type -> Type -> Type
 
-useState
-  :: forall state
-   . state
-  -> Hook (UseState state) (state /\ ((state -> state) -> Effect Unit))
-useState initialState = Render do
-  runEffectFn2 useState_ (mkFn2 Tuple) initialState
+useState ::
+  forall state.
+  state ->
+  Hook (UseState state) (state /\ ((state -> state) -> Effect Unit))
+useState initialState =
+  Render do
+    runEffectFn2 useState_ (mkFn2 Tuple) initialState
 
 foreign import data UseEffect :: Type -> Type -> Type
 
 -- | The effect will be run when the component is mounted, and the effect
 -- | returned from the function will be run on cleanup
-useEffect
-  :: forall key
-   . Eq key
-  => key
-  -> Effect (Effect Unit)
-  -> Hook (UseEffect key) Unit
+useEffect ::
+  forall key.
+  Eq key =>
+  key ->
+  Effect (Effect Unit) ->
+  Hook (UseEffect key) Unit
 useEffect key effect = Render (runEffectFn3 useEffect_ (mkFn2 eq) key effect)
 
 foreign import data UseLayoutEffect :: Type -> Type -> Type
 
-useLayoutEffect
-  :: forall key
-   . Eq key
-  => key
-  -> Effect (Effect Unit)
-  -> Hook (UseLayoutEffect key) Unit
+useLayoutEffect ::
+  forall key.
+  Eq key =>
+  key ->
+  Effect (Effect Unit) ->
+  Hook (UseLayoutEffect key) Unit
 useLayoutEffect keys effect = Render (runEffectFn3 useLayoutEffect_ (mkFn2 eq) keys effect)
 
 foreign import data UseReducer :: Type -> Type -> Type -> Type
 
-useReducer
-  :: forall state action
-   . state
-  -> (state -> action -> state)
-  -> Hook (UseReducer state action) (state /\ (action -> Effect Unit))
-useReducer initialState reducer = Render do
-  runEffectFn3 useReducer_
-    (mkFn2 Tuple)
-    (mkFn2 reducer)
-    initialState
+useReducer ::
+  forall state action.
+  state ->
+  (state -> action -> state) ->
+  Hook (UseReducer state action) (state /\ (action -> Effect Unit))
+useReducer initialState reducer =
+  Render do
+    runEffectFn3 useReducer_
+      (mkFn2 Tuple)
+      (mkFn2 reducer)
+      initialState
 
 foreign import data UseRef :: Type -> Type -> Type
 
-foreign import data Ref :: Type -> Type
-
-useRef :: forall a . a -> Hook (UseRef a) (Ref a)
-useRef initialValue = Render do
-  runEffectFn1 useRef_ initialValue
+useRef :: forall a. a -> Hook (UseRef a) (Ref a)
+useRef initialValue =
+  Render do
+    runEffectFn1 useRef_ initialValue
 
 readRef :: forall a. Ref a -> Effect a
 readRef = runEffectFn1 readRef_
@@ -171,47 +170,43 @@ renderRefMaybe a = Render (readRefMaybe a)
 
 foreign import data UseContext :: Type -> Type -> Type
 
-foreign import data Context :: Type -> Type
-
-useContext :: forall a . Context a -> Hook (UseContext a) (Maybe a)
-useContext context = Render (map toMaybe (runEffectFn1 useContext_ context))
-
-foreign import createContext :: forall a. Effect (Context a)
-
-contextProvider :: forall a. Context a -> a -> JSX -> JSX
-contextProvider context a child = element (contextProvider_ context) { value: a, children: child }
+useContext :: forall a. ReactContext a -> Hook (UseContext a) a
+useContext context = Render (runEffectFn1 useContext_ context)
 
 foreign import data UseMemo :: Type -> Type -> Type -> Type
 
-useMemo
-  :: forall key a
-   . Eq key
-  => key
-  -> (Unit -> a)
-  -> Hook (UseMemo key a) a
+useMemo ::
+  forall key a.
+  Eq key =>
+  key ->
+  (Unit -> a) ->
+  Hook (UseMemo key a) a
 useMemo key computeA = Render (runEffectFn3 useMemo_ (mkFn2 eq) key computeA)
 
 foreign import data UseCallback :: Type -> Type -> Type -> Type
 
-useCallback
-  :: forall key a
-   . Eq key
-  => key
-  -> a
-  -> Hook (UseCallback key a) a
+useCallback ::
+  forall key a.
+  Eq key =>
+  key ->
+  a ->
+  Hook (UseCallback key a) a
 useCallback key computeA = Render (runEffectFn3 useCallback_ (mkFn2 eq) key computeA)
 
 foreign import data UseEqCache :: Type -> Type -> Type
 
-useEqCache
-  :: forall a
-   . Eq a
-  => a
-  -> Hook (UseCallback a a) a
+useEqCache ::
+  forall a.
+  Eq a =>
+  a ->
+  Hook (UseCallback a a) a
 useEqCache a = Render (runEffectFn2 useEqCache_ (mkFn2 eq) a)
 
-newtype UnsafeReference a = UnsafeReference a
+newtype UnsafeReference a
+  = UnsafeReference a
+
 derive instance newtypeUnsafeReference :: Newtype (UnsafeReference a) _
+
 instance eqUnsafeReference :: Eq (UnsafeReference a) where
   eq = unsafeRefEq
 
@@ -219,11 +214,14 @@ instance eqUnsafeReference :: Eq (UnsafeReference a) where
 -- | body, i.e. during "render". This includes hooks and ends with
 -- | returning JSX (see `pure`), but does not allow arbitrary side
 -- | effects.
-newtype Render x y a = Render (Effect a)
+newtype Render x y a
+  = Render (Effect a)
 
-type Pure a = forall hooks. Render hooks hooks a
+type Pure a
+  = forall hooks. Render hooks hooks a
 
-type Hook (newHook :: Type -> Type) a = forall hooks. Render hooks (newHook hooks) a
+type Hook (newHook :: Type -> Type) a
+  = forall hooks. Render hooks (newHook hooks) a
 
 instance ixFunctorRender :: IxFunctor Render where
   imap f (Render a) = Render (map f a)
@@ -267,106 +265,99 @@ instance monoidRender :: (TypeEquals x y, Monoid a) => Monoid (Render x y a) whe
 -- | error messages in logs.
 -- |
 -- | __*See also:* `component`__
-foreign import displayName
-  :: forall props
-   . ReactComponent props
-  -> String
-
+foreign import displayName ::
+  forall props.
+  ReactComponent props ->
+  String
 
 -- |
 -- | Internal utility or FFI functions
 -- |
+foreign import memo_ ::
+  forall props.
+  EffectFn1
+    (ReactComponent props)
+    (ReactComponent props)
 
-foreign import memo_
-  :: forall props
-   . EffectFn1
-       (ReactComponent props)
-       (ReactComponent props)
+foreign import unsafeSetDisplayName ::
+  forall props.
+  EffectFn2 String (ReactComponent props) (ReactComponent props)
 
-foreign import unsafeSetDisplayName
-  :: forall props
-   . EffectFn2 String (ReactComponent props) (ReactComponent props)
+foreign import useState_ ::
+  forall state.
+  EffectFn2
+    (forall a b. Fn2 a b (a /\ b))
+    state
+    (state /\ ((state -> state) -> Effect Unit))
 
-foreign import useState_
-  :: forall state
-   . EffectFn2
-       (forall a b. Fn2 a b (a /\ b))
-       state
-       (state /\ ((state -> state) -> Effect Unit))
+foreign import useEffect_ ::
+  forall key.
+  EffectFn3
+    (Fn2 key key Boolean)
+    key
+    (Effect (Effect Unit))
+    Unit
 
-foreign import useEffect_
-  :: forall key
-   . EffectFn3
-       (Fn2 key key Boolean)
-       key
-       (Effect (Effect Unit))
-       Unit
+foreign import useLayoutEffect_ ::
+  forall key.
+  EffectFn3
+    (Fn2 key key Boolean)
+    key
+    (Effect (Effect Unit))
+    Unit
 
-foreign import useLayoutEffect_
-  :: forall key
-   . EffectFn3
-       (Fn2 key key Boolean)
-       key
-       (Effect (Effect Unit))
-       Unit
+foreign import useReducer_ ::
+  forall state action.
+  EffectFn3
+    (forall a b. Fn2 a b (a /\ b))
+    (Fn2 state action state)
+    state
+    (state /\ (action -> Effect Unit))
 
-foreign import useReducer_
-  :: forall state action
-   . EffectFn3
-       (forall a b. Fn2 a b (a /\ b))
-       (Fn2 state action state)
-       state
-       (state /\ (action -> Effect Unit))
+foreign import readRef_ ::
+  forall a.
+  EffectFn1
+    (Ref a)
+    a
 
-foreign import readRef_
-  :: forall a
-   . EffectFn1
-       (Ref a)
-       a
+foreign import writeRef_ ::
+  forall a.
+  EffectFn2
+    (Ref a)
+    a
+    Unit
 
-foreign import writeRef_
-  :: forall a
-   . EffectFn2
-       (Ref a)
-       a
-       Unit
+foreign import useRef_ ::
+  forall a.
+  EffectFn1
+    a
+    (Ref a)
 
-foreign import useRef_
-  :: forall a
-   . EffectFn1
-       a
-       (Ref a)
+foreign import useContext_ ::
+  forall a.
+  EffectFn1
+    (ReactContext a)
+    a
 
-foreign import useContext_
-  :: forall a
-   . EffectFn1
-       (Context a)
-       (Nullable a)
+foreign import useMemo_ ::
+  forall key a.
+  EffectFn3
+    (Fn2 key key Boolean)
+    key
+    (Unit -> a)
+    a
 
-foreign import contextProvider_
-  :: forall a
-   . Context a
-  -> ReactComponent { value :: a, children :: JSX }
+foreign import useCallback_ ::
+  forall key a.
+  EffectFn3
+    (Fn2 key key Boolean)
+    key
+    a
+    a
 
-foreign import useMemo_
-  :: forall key a
-   . EffectFn3
-       (Fn2 key key Boolean)
-       key
-       (Unit -> a)
-       a
-
-foreign import useCallback_
-  :: forall key a
-   . EffectFn3
-       (Fn2 key key Boolean)
-       key
-       a
-       a
-
-foreign import useEqCache_
-  :: forall a
-   . EffectFn2
-       (Fn2 a a Boolean)
-       a
-       a
+foreign import useEqCache_ ::
+  forall a.
+  EffectFn2
+    (Fn2 a a Boolean)
+    a
+    a

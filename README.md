@@ -1,11 +1,11 @@
 # react-basic-hooks [![CircleCI](https://circleci.com/gh/spicydonuts/purescript-react-basic-hooks.svg?style=svg)](https://circleci.com/gh/spicydonuts/purescript-react-basic-hooks)
 
-This is library adds React hooks to [react-basic](https://github.com/lumihq/purescript-react-basic).
+`react-basic-hooks` adds React hook support to [react-basic](https://github.com/lumihq/purescript-react-basic)!
 
-_Warning:_ This API relies on recent React versions (>= 16.8.0).
+_Note:_ This API relies on recent React versions (>= 16.8.0).
 For more info on hooks, see [React's documentation](https://reactjs.org/docs/hooks-intro.html).
 
-I recommend using PureScript's new "qualified do" syntax while using this library (it's used in the examples, the `React.do` bits).
+I recommend using PureScript's "qualified do" syntax while using this library (it's used in the examples, the `React.do` bits).
 It became available in the `0.12.2` compiler release.
 
 This library provides the `React.Basic.Hooks` module, which can completely replace the `React.Basic` module.
@@ -20,10 +20,13 @@ mkCounter = do
   component "Counter" \props -> React.do
     counter /\ setCounter <- useState 0
 
-    React.pure $ R.button
-      { onClick: handler_ $ setCounter (_ + 1)
-      , children: [ R.text $ "Increment: " <> show counter ]
-      }
+    pure
+      $ R.button
+        { onClick: handler_ do
+            setCounter (_ + 1)
+        , children:
+            [ R.text $ "Increment: " <> show counter ]
+        }
 ```
 
 More examples:
@@ -36,7 +39,3 @@ More examples:
 - [A Todo App](./examples/todo-app/src/TodoApp.purs) (components, inputs, state)
 - [Context](./examples/context/src/Context.purs) (creating and consuming React context)
 - [Aff helper](./examples/aff/src/AffEx.purs) (async state management)
-
-_A note on Refs:_ The `Ref` type is useful for all kinds of state (anything which shouldn't trigger a render when changed), particularly references to DOM nodes as in the example.
-Unfortunately, while this module remains a small extension to the existing react-basic library it won't be possible to pass a `ref` prop to the native DOM components from `React.Basic.DOM`.
-In the meantime, use `element (unsafeCreateDOMComponent "div") { ref: elementRef }`.

@@ -54,12 +54,6 @@ exports.writeRef_ = function(ref, a) {
 
 exports.useContext_ = React.useContext;
 
-exports.createContext = React.createContext;
-
-exports.contextProvider_ = function(context) {
-  return context.Provider;
-};
-
 exports.useMemo_ = function(eq, key, computeA) {
   var memoizedKey = exports.useEqCache_(eq, key);
   return React.useMemo(computeA, [memoizedKey]);
