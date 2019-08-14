@@ -15,7 +15,7 @@ If we prefer this API over the existing react-basic API, we may eventually repla
 ## Example
 
 ```purs
-mkCounter :: CreateComponent {}
+mkCounter :: Effect (ReactComponent {})
 mkCounter = do
   component "Counter" \props -> React.do
     counter /\ setCounter <- useState 0

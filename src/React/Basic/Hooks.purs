@@ -12,8 +12,7 @@
 -- | *A note on Refs:* The `Ref` type is useful for passing to DOM nodes, but while this module remains a small extension to the existing react-basic library it won't be possible to pass a `ref` prop to the native DOM components.
 -- | In the meantime, use `element (unsafeCreateDOMComponent "div") { ref: elementRef }`.
 module React.Basic.Hooks
-  ( CreateComponent
-  , component
+  ( component
   , memo
   , UseState
   , useState
@@ -39,22 +38,14 @@ module React.Basic.Hooks
   , UseEqCache
   , useEqCache
   , UnsafeReference(..)
-  , Render
-  , Pure
-  , Hook
-  , bind
-  , discard
   , displayName
+  , module React.Basic.Hooks.Internal
   , module React.Basic
   , module Data.Tuple.Nested
   ) where
 
 import Prelude hiding (bind, discard)
-import Control.Applicative.Indexed (class IxApplicative)
-import Control.Apply.Indexed (class IxApply)
-import Control.Bind.Indexed (class IxBind, ibind)
 import Data.Function.Uncurried (Fn2, mkFn2)
-import Data.Functor.Indexed (class IxFunctor)
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import Data.Nullable (Nullable, toMaybe)
@@ -65,13 +56,9 @@ import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, mkEffectFn1, runEffect
 import Prelude (bind) as Prelude
 import Prim.Row (class Lacks)
 import React.Basic (JSX, ReactComponent, ReactContext, Ref, consumer, contextConsumer, contextProvider, createContext, element, elementKeyed, empty, keyed, fragment, provider)
-import Type.Equality (class TypeEquals)
+import React.Basic.Hooks.Internal (Hook, Pure, Render, bind, discard, newtypeHook, unsafeHook, unsafeRenderEffect)
 import Unsafe.Coerce (unsafeCoerce)
 import Unsafe.Reference (unsafeRefEq)
-
--- | Alias for convenience.
-type CreateComponent props
-  = Effect (ReactComponent props)
 
 -- | Create a React component given a display name and render function.
 -- | Creating components is effectful because React uses the function
@@ -84,20 +71,29 @@ component ::
   Lacks "ref" props =>
   String ->
   ({ | props } -> Render Unit hooks JSX) ->
-  CreateComponent { | props }
+  Effect (ReactComponent { | props })
 component name renderFn =
   let
-    c = unsafeReactFunctionComponent (mkEffectFn1 (\props -> case renderFn props of Render a -> a))
+    c =
+      unsafeReactFunctionComponent
+        ( mkEffectFn1
+            ( \props ->
+                unsafeDiscardRenderEffects (renderFn props)
+            )
+        )
   in
     runEffectFn2 unsafeSetDisplayName name c
+
+unsafeDiscardRenderEffects :: forall x y a. Render x y a -> Effect a
+unsafeDiscardRenderEffects = unsafeCoerce
 
 unsafeReactFunctionComponent :: forall props. EffectFn1 props JSX -> ReactComponent props
 unsafeReactFunctionComponent = unsafeCoerce
 
 memo ::
   forall props.
-  CreateComponent props ->
-  CreateComponent props
+  Effect (ReactComponent props) ->
+  Effect (ReactComponent props)
 memo = flip Prelude.bind (runEffectFn1 memo_)
 
 foreign import data UseState :: Type -> Type -> Type
@@ -107,7 +103,7 @@ useState ::
   state ->
   Hook (UseState state) (state /\ ((state -> state) -> Effect Unit))
 useState initialState =
-  Render do
+  unsafeHook do
     runEffectFn2 useState_ (mkFn2 Tuple) initialState
 
 foreign import data UseEffect :: Type -> Type -> Type
@@ -120,7 +116,7 @@ useEffect ::
   key ->
   Effect (Effect Unit) ->
   Hook (UseEffect key) Unit
-useEffect key effect = Render (runEffectFn3 useEffect_ (mkFn2 eq) key effect)
+useEffect key effect = unsafeHook (runEffectFn3 useEffect_ (mkFn2 eq) key effect)
 
 foreign import data UseLayoutEffect :: Type -> Type -> Type
 
@@ -130,7 +126,7 @@ useLayoutEffect ::
   key ->
   Effect (Effect Unit) ->
   Hook (UseLayoutEffect key) Unit
-useLayoutEffect keys effect = Render (runEffectFn3 useLayoutEffect_ (mkFn2 eq) keys effect)
+useLayoutEffect keys effect = unsafeHook (runEffectFn3 useLayoutEffect_ (mkFn2 eq) keys effect)
 
 foreign import data UseReducer :: Type -> Type -> Type -> Type
 
@@ -140,7 +136,7 @@ useReducer ::
   (state -> action -> state) ->
   Hook (UseReducer state action) (state /\ (action -> Effect Unit))
 useReducer initialState reducer =
-  Render do
+  unsafeHook do
     runEffectFn3 useReducer_
       (mkFn2 Tuple)
       (mkFn2 reducer)
@@ -150,7 +146,7 @@ foreign import data UseRef :: Type -> Type -> Type
 
 useRef :: forall a. a -> Hook (UseRef a) (Ref a)
 useRef initialValue =
-  Render do
+  unsafeHook do
     runEffectFn1 useRef_ initialValue
 
 readRef :: forall a. Ref a -> Effect a
@@ -163,15 +159,15 @@ writeRef :: forall a. Ref a -> a -> Effect Unit
 writeRef = runEffectFn2 writeRef_
 
 renderRef :: forall a. Ref a -> Pure a
-renderRef ref = Render (readRef ref)
+renderRef ref = unsafeRenderEffect (readRef ref)
 
 renderRefMaybe :: forall a. Ref (Nullable a) -> Pure (Maybe a)
-renderRefMaybe a = Render (readRefMaybe a)
+renderRefMaybe a = unsafeRenderEffect (readRefMaybe a)
 
 foreign import data UseContext :: Type -> Type -> Type
 
 useContext :: forall a. ReactContext a -> Hook (UseContext a) a
-useContext context = Render (runEffectFn1 useContext_ context)
+useContext context = unsafeHook (runEffectFn1 useContext_ context)
 
 foreign import data UseMemo :: Type -> Type -> Type -> Type
 
@@ -181,7 +177,7 @@ useMemo ::
   key ->
   (Unit -> a) ->
   Hook (UseMemo key a) a
-useMemo key computeA = Render (runEffectFn3 useMemo_ (mkFn2 eq) key computeA)
+useMemo key computeA = unsafeHook (runEffectFn3 useMemo_ (mkFn2 eq) key computeA)
 
 foreign import data UseCallback :: Type -> Type -> Type -> Type
 
@@ -191,7 +187,7 @@ useCallback ::
   key ->
   a ->
   Hook (UseCallback key a) a
-useCallback key computeA = Render (runEffectFn3 useCallback_ (mkFn2 eq) key computeA)
+useCallback key computeA = unsafeHook (runEffectFn3 useCallback_ (mkFn2 eq) key computeA)
 
 foreign import data UseEqCache :: Type -> Type -> Type
 
@@ -200,7 +196,7 @@ useEqCache ::
   Eq a =>
   a ->
   Hook (UseCallback a a) a
-useEqCache a = Render (runEffectFn2 useEqCache_ (mkFn2 eq) a)
+useEqCache a = unsafeHook (runEffectFn2 useEqCache_ (mkFn2 eq) a)
 
 newtype UnsafeReference a
   = UnsafeReference a
@@ -209,57 +205,6 @@ derive instance newtypeUnsafeReference :: Newtype (UnsafeReference a) _
 
 instance eqUnsafeReference :: Eq (UnsafeReference a) where
   eq = unsafeRefEq
-
--- | Render represents the effects allowed within a React component's
--- | body, i.e. during "render". This includes hooks and ends with
--- | returning JSX (see `pure`), but does not allow arbitrary side
--- | effects.
-newtype Render x y a
-  = Render (Effect a)
-
-type Pure a
-  = forall hooks. Render hooks hooks a
-
-type Hook (newHook :: Type -> Type) a
-  = forall hooks. Render hooks (newHook hooks) a
-
-instance ixFunctorRender :: IxFunctor Render where
-  imap f (Render a) = Render (map f a)
-
-instance ixApplyRender :: IxApply Render where
-  iapply (Render f) (Render a) = Render (apply f a)
-
-instance ixApplicativeRender :: IxApplicative Render where
-  ipure a = Render (pure a)
-
-instance ixBindRender :: IxBind Render where
-  ibind (Render m) f = Render (Prelude.bind m \a -> case f a of Render b -> b)
-
--- | Exported for use with qualified-do syntax
-bind :: forall a b x y z m. IxBind m => m x y a -> (a -> m y z b) -> m x z b
-bind = ibind
-
--- | Exported for use with qualified-do syntax
-discard :: forall a b x y z m. IxBind m => m x y a -> (a -> m y z b) -> m x z b
-discard = ibind
-
-instance functorRender :: Functor (Render x y) where
-  map f (Render a) = Render (map f a)
-
-instance applyRender :: TypeEquals x y => Apply (Render x y) where
-  apply (Render f) (Render a) = Render (apply f a)
-
-instance applicativeRender :: TypeEquals x y => Applicative (Render x y) where
-  pure a = Render (pure a)
-
-instance bindRender :: TypeEquals x y => Bind (Render x y) where
-  bind (Render m) f = Render (Prelude.bind m \a -> case f a of Render b -> b)
-
-instance semigroupRender :: (TypeEquals x y, Semigroup a) => Semigroup (Render x y a) where
-  append (Render a) (Render b) = Render (append a b)
-
-instance monoidRender :: (TypeEquals x y, Monoid a) => Monoid (Render x y a) where
-  mempty = Render mempty
 
 -- | Retrieve the Display Name from a `ReactComponent`. Useful for debugging and improving
 -- | error messages in logs.

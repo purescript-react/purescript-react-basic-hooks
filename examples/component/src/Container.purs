@@ -1,19 +1,19 @@
 module Container where
 
 import Prelude
-
-import React.Basic.Hooks(CreateComponent, component, element)
+import Effect (Effect)
 import React.Basic.DOM as R
+import React.Basic.Hooks (ReactComponent, component, element)
 import ToggleButton (mkToggleButton)
 
-mkToggleButtonContainer :: CreateComponent {}
+mkToggleButtonContainer :: Effect (ReactComponent {})
 mkToggleButtonContainer = do
   toggleButton <- mkToggleButton
-
   component "Container" \_ ->
-    pure $ R.div
-      { children:
-          [ element toggleButton { label: "A" }
-          , element toggleButton { label: "B" }
-          ]
-      }
+    pure
+      $ R.div
+          { children:
+            [ element toggleButton { label: "A" }
+            , element toggleButton { label: "B" }
+            ]
+          }
