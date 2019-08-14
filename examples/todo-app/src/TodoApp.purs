@@ -10,7 +10,7 @@ import React.Basic.DOM as R
 import React.Basic.DOM.Events (preventDefault, stopPropagation, targetValue)
 import React.Basic.Events (handler, handler_)
 import React.Basic.Events as Events
-import React.Basic.Hooks (CreateComponent, component, element, elementKeyed, empty, memo, useReducer, useState, (/\))
+import React.Basic.Hooks (ReactComponent, component, element, elementKeyed, empty, memo, useReducer, useState, (/\))
 import React.Basic.Hooks as React
 
 data Action
@@ -47,7 +47,7 @@ reducer state = case _ of
     Nothing -> state
   SetFilter filter -> state { filter = filter }
 
-mkTodoApp :: CreateComponent {}
+mkTodoApp :: Effect (ReactComponent {})
 mkTodoApp = do
   let
     initialState = { todos: [], filter: All }
@@ -82,7 +82,7 @@ mkTodoApp = do
   where
   todoAppEl = RB.element $ R.unsafeCreateDOMComponent "todo-app"
 
-mkTodoInput :: CreateComponent { dispatch :: Action -> Effect Unit }
+mkTodoInput :: Effect (ReactComponent { dispatch :: Action -> Effect Unit })
 mkTodoInput = do
   component "TodoInput" \props -> React.do
     value /\ setValue <- useState ""
@@ -105,7 +105,7 @@ mkTodoInput = do
           , style: R.css { marginBottom: "16px", width: "100%" }
           }
 
-mkTodoRow :: CreateComponent { id :: Int, todo :: Todo, dispatch :: Action -> Effect Unit }
+mkTodoRow :: Effect (ReactComponent { id :: Int, todo :: Todo, dispatch :: Action -> Effect Unit })
 mkTodoRow =
   component "Todo" \props -> React.do
     pure
@@ -137,7 +137,7 @@ mkTodoRow =
               }
           }
 
-mkTodoFilters :: CreateComponent { filter :: TodoFilter, dispatch :: Action -> Effect Unit }
+mkTodoFilters :: Effect (ReactComponent { filter :: TodoFilter, dispatch :: Action -> Effect Unit })
 mkTodoFilters =
   component "TodoFilters" \props -> React.do
     let

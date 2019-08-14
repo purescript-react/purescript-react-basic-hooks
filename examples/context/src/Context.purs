@@ -4,10 +4,10 @@ import Prelude
 import Effect (Effect)
 import React.Basic.DOM as R
 import React.Basic.Events (handler_)
-import React.Basic.Hooks (type (/\), CreateComponent, JSX, ReactContext, component, createContext, element, provider, useContext, useState, (/\))
+import React.Basic.Hooks (type (/\), ReactComponent, JSX, ReactContext, component, createContext, element, provider, useContext, useState, (/\))
 import React.Basic.Hooks as React
 
-mkContext :: CreateComponent {}
+mkContext :: Effect (ReactComponent {})
 mkContext = do
   counterContext <- createContext (0 /\ pure unit)
   store <- mkStore counterContext
@@ -24,7 +24,7 @@ mkContext = do
 
 mkStore ::
   ReactContext (Int /\ (Effect Unit)) ->
-  CreateComponent { children :: Array JSX }
+  Effect (ReactComponent { children :: Array JSX })
 mkStore context = do
   component "Store" \{ children } -> React.do
     counter /\ setCounter <- useState 0
@@ -37,7 +37,7 @@ mkStore context = do
 
 mkCounter ::
   ReactContext (Int /\ (Effect Unit)) ->
-  CreateComponent {}
+  Effect (ReactComponent {})
 mkCounter counterContext = do
   component "Counter" \props -> React.do
     counter /\ increment <- useContext counterContext

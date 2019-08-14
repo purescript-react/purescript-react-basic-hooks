@@ -3,14 +3,15 @@ module AffEx where
 import Prelude
 import Data.Either (either)
 import Data.Maybe (Maybe(..), maybe)
+import Effect (Effect)
 import Effect.Aff (Aff, Milliseconds(..), delay, error, message, throwError)
 import React.Basic.DOM as R
 import React.Basic.Events (handler_)
-import React.Basic.Hooks (type (/\), CreateComponent, Hook, JSX, component, element, fragment, useState, (/\))
+import React.Basic.Hooks (type (/\), ReactComponent, Hook, JSX, component, element, fragment, useState, (/\))
 import React.Basic.Hooks as React
 import React.Basic.Hooks.Aff (useAff)
 
-mkAffEx :: CreateComponent {}
+mkAffEx :: Effect (ReactComponent {})
 mkAffEx = do
   -- A component for fetching and rendering a Cat entity.
   catDetails <- mkCatDetails
@@ -68,7 +69,7 @@ mkAffEx = do
   -- Hooks can't be used conditionally but components can!
   -- Not needing to deal with a `Maybe` key simplifies this
   -- compoennt a bit.
-  mkCatDetails :: CreateComponent { catKey :: Key Cat }
+  mkCatDetails :: Effect (ReactComponent { catKey :: Key Cat })
   mkCatDetails = do
     component "CatDetails" \{ catKey } -> React.do
       cat <- useAff catKey $ fetch catKey
