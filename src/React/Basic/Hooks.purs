@@ -56,7 +56,7 @@ import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, mkEffectFn1, runEffect
 import Prelude (bind) as Prelude
 import Prim.Row (class Lacks)
 import React.Basic (JSX, ReactComponent, ReactContext, Ref, consumer, contextConsumer, contextProvider, createContext, element, elementKeyed, empty, keyed, fragment, provider)
-import React.Basic.Hooks.Internal (Hook, Pure, Render, bind, discard, newtypeHook, unsafeHook, unsafeRenderEffect)
+import React.Basic.Hooks.Internal (Hook, Pure, Render, bind, discard, coerceHook, unsafeHook, unsafeRenderEffect)
 import Unsafe.Coerce (unsafeCoerce)
 import Unsafe.Reference (unsafeRefEq)
 

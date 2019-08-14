@@ -8,7 +8,7 @@ import Data.Nullable (Nullable, null)
 import Effect (Effect)
 import Math (pow, sqrt)
 import React.Basic.DOM as R
-import React.Basic.Hooks (type (/\), Hook, ReactComponent, Ref, UseEffect, UseRef, UseState, component, element, fragment, newtypeHook, readRefMaybe, useEffect, useRef, useState, (/\))
+import React.Basic.Hooks (type (/\), Hook, ReactComponent, Ref, UseEffect, UseRef, UseState, component, element, fragment, coerceHook, readRefMaybe, useEffect, useRef, useState, (/\))
 import React.Basic.Hooks as React
 import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM (Node)
@@ -51,7 +51,7 @@ derive instance ntUseNodeDistance :: Newtype (UseNodeDistance hooks) _
 
 useNodeDistanceFromMouse :: Hook UseNodeDistance (Int /\ (Ref (Nullable Node)))
 useNodeDistanceFromMouse =
-  newtypeHook React.do
+  coerceHook React.do
     elementRef <- useRef null
     mouseDistance /\ setMouseDistance <- useState 0
     useEffect unit do

@@ -1,6 +1,6 @@
 module React.Basic.Hooks.Internal
   ( Render
-  , newtypeHook
+  , coerceHook
   , unsafeHook
   , unsafeRenderEffect
   , Pure
@@ -52,12 +52,12 @@ newtype Render x y a
 -- |
 -- |
 -- |
-newtypeHook ::
+coerceHook ::
   forall hooks oldHook newHook a.
   Newtype newHook oldHook =>
   Render hooks oldHook a ->
   Render hooks newHook a
-newtypeHook (Render a) = Render a
+coerceHook (Render a) = Render a
 
 -- | Promote an arbitrary Effect to a Hook.
 -- |
@@ -66,7 +66,7 @@ newtypeHook (Render a) = Render a
 -- | may cause them to be run many times by React.
 -- | This function is primarily for constructing
 -- | new hooks using the FFI. If you just want to
--- | alias a safe hook's effects, prefer `newtypeHook`.
+-- | alias a safe hook's effects, prefer `coerceHook`.
 unsafeHook ::
   forall newHook a.
   Effect a -> Hook newHook a
