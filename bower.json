@@ -15,7 +15,7 @@
     "purescript-prelude": "^4.1.0",
     "purescript-console": "^4.2.0",
     "purescript-effect": "^2.0.0",
-    "purescript-react-basic": "^10.0.0 || ^11.0.0",
+    "purescript-react-basic": "^10.0.0 || ^11.0.0 || ^12.0.0",
     "purescript-indexed-monad": "^1.0.0",
     "purescript-unsafe-reference": "^3.0.1",
     "purescript-aff": "^5.1.1"
