@@ -1,5 +1,6 @@
 module React.Basic.Hooks
   ( component
+  , unsafeComponent
   , memo
   , UseState
   , useState
@@ -54,12 +55,23 @@ import Unsafe.Reference (unsafeRefEq)
 -- | lifecycles or render functions.
 component ::
   forall hooks props.
+  Lacks "children" props =>
   Lacks "key" props =>
   Lacks "ref" props =>
   String ->
   ({ | props } -> Render Unit hooks JSX) ->
   Effect (ReactComponent { | props })
-component name renderFn =
+component = unsafeComponent
+
+-- | Identical to `component`, but allows the unsafe use of the `children` prop.
+unsafeComponent ::
+  forall hooks props.
+  Lacks "key" props =>
+  Lacks "ref" props =>
+  String ->
+  ({ | props } -> Render Unit hooks JSX) ->
+  Effect (ReactComponent { | props })
+unsafeComponent name renderFn =
   let
     c =
       unsafeReactFunctionComponent
