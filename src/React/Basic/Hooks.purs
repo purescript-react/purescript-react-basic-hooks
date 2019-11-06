@@ -1,6 +1,7 @@
 module React.Basic.Hooks
   ( component
-  , unsafeComponent
+  , componentWithChildren
+  , ReactChildren
   , memo
   , UseState
   , useState
@@ -52,7 +53,8 @@ import Unsafe.Reference (unsafeRefEq)
 -- | Creating components is effectful because React uses the function
 -- | instance as the component's "identity" or "type". Components should
 -- | be created during a bootstrap phase and not within component
--- | lifecycles or render functions.
+-- | lifecycles or render functions. See `componentWithChildren` if
+-- | you need to use the `children` prop.
 component ::
   forall hooks props.
   Lacks "children" props =>
@@ -63,7 +65,18 @@ component ::
   Effect (ReactComponent { | props })
 component = unsafeComponent
 
--- | Identical to `component`, but allows the unsafe use of the `children` prop.
+-- | Create a React component given a display name and render function.
+-- | This is the same as `component` but allows the use of the `children`
+-- | prop.
+componentWithChildren ::
+  forall hooks props children.
+  Lacks "key" props =>
+  Lacks "ref" props =>
+  String ->
+  ({ children :: ReactChildren children | props } -> Render Unit hooks JSX) ->
+  Effect (ReactComponent { children :: ReactChildren children | props })
+componentWithChildren = unsafeComponent
+
 unsafeComponent ::
   forall hooks props.
   Lacks "key" props =>
@@ -88,6 +101,13 @@ unsafeDiscardRenderEffects = unsafeCoerce
 
 unsafeReactFunctionComponent :: forall props. EffectFn1 props JSX -> ReactComponent props
 unsafeReactFunctionComponent = unsafeCoerce
+
+data ReactChildren a
+
+foreign import reactChildrenToArray :: forall a. ReactChildren a -> Array a
+
+reactChildrenFromArray :: forall a. Array a -> ReactChildren a
+reactChildrenFromArray = unsafeCoerce
 
 memo ::
   forall props.

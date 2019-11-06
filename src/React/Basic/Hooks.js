@@ -2,6 +2,10 @@
 
 var React = require("react");
 
+exports.reactChildrenToArray = function(children) {
+  return React.Children.toArray(children);
+};
+
 exports.memo_ = React.memo;
 
 exports.useState_ = function(tuple, initialState) {
