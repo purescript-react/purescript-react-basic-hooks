@@ -8,7 +8,7 @@ import Data.Nullable (Nullable, null)
 import Effect (Effect)
 import Math (pow, sqrt)
 import React.Basic.DOM as R
-import React.Basic.Hooks (type (/\), Hook, ReactComponent, Ref, UseEffect, UseRef, UseState, component, element, fragment, coerceHook, readRefMaybe, useEffect, useRef, useState, (/\))
+import React.Basic.Hooks (type (/\), Hook, ReactComponent, Ref, UseEffect, UseRef, UseState, component, fragment, coerceHook, readRefMaybe, useEffect, useRef, useState, (/\))
 import React.Basic.Hooks as React
 import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM (Node)
@@ -27,17 +27,17 @@ mkRefs = do
     mouseDistance3 /\ buttonRef3 <- useNodeDistanceFromMouse
     pure
       $ fragment
-          [ element (R.unsafeCreateDOMComponent "button")
+          [ R.button
               { ref: buttonRef1
               , children: [ R.text $ show mouseDistance1 <> "px" ]
               , style: R.css { width: "100px", position: "absolute", top: "20px", left: "200px" }
               }
-          , element (R.unsafeCreateDOMComponent "button")
+          , R.button
               { ref: buttonRef2
               , children: [ R.text $ show mouseDistance2 <> "px" ]
               , style: R.css { width: "100px", position: "absolute", top: "60px", left: "40px" }
               }
-          , element (R.unsafeCreateDOMComponent "button")
+          , R.button
               { ref: buttonRef3
               , children: [ R.text $ show mouseDistance3 <> "px" ]
               , style: R.css { width: "100px", position: "absolute", top: "120px", left: "90px" }

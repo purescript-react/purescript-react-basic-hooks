@@ -15,7 +15,7 @@ mkContext = do
   component "Context" \props -> React.do
     pure
       $ element store
-          { children:
+          { content:
             [ element counter {}
             , element counter {}
             , element counter {}
@@ -24,16 +24,16 @@ mkContext = do
 
 mkStore ::
   ReactContext (Int /\ (Effect Unit)) ->
-  Effect (ReactComponent { children :: Array JSX })
+  Effect (ReactComponent { content :: Array JSX })
 mkStore context = do
-  component "Store" \{ children } -> React.do
+  component "Store" \{ content } -> React.do
     counter /\ setCounter <- useState 0
     let
       increment = setCounter (_ + 1)
     pure
       $ provider context
           (counter /\ increment)
-          children
+          content
 
 mkCounter ::
   ReactContext (Int /\ (Effect Unit)) ->

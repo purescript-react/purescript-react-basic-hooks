@@ -89,7 +89,7 @@ componentFromHook ::
   Lacks "key" props =>
   Lacks "ref" props =>
   String ->
-  ({ render :: r -> JSX | props } -> Render Unit hooks r) ->
+  ({ render :: r -> JSX | props } -> Hook hooks r) ->
   Effect (ReactComponent { render :: r -> JSX | props })
 componentFromHook name propsToHook = do
   component name \props -> map props.render $ propsToHook props
