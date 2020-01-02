@@ -1,6 +1,7 @@
 module React.Basic.Hooks
   ( component
   , componentWithChildren
+  , componentFromHook
   , ReactChildren
   , memo
   , UseState
@@ -76,6 +77,22 @@ componentWithChildren ::
   ({ children :: ReactChildren children | props } -> Render Unit hooks JSX) ->
   Effect (ReactComponent { children :: ReactChildren children | props })
 componentWithChildren = unsafeComponent
+
+-- | Convert a hook to a render-prop component. The value returned from the
+-- | hook will be passed to the `render` prop, a function from that value
+-- | to `JSX`.
+-- |
+-- | This function is useful for consuming a hook within a non-hook component.
+componentFromHook ::
+  forall hooks props r.
+  Lacks "children" props =>
+  Lacks "key" props =>
+  Lacks "ref" props =>
+  String ->
+  ({ render :: r -> JSX | props } -> Render Unit hooks r) ->
+  Effect (ReactComponent { render :: r -> JSX | props })
+componentFromHook name propsToHook = do
+  component name \props -> map props.render $ propsToHook props
 
 unsafeComponent ::
   forall hooks props.
