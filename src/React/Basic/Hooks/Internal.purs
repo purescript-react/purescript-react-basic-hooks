@@ -116,8 +116,8 @@ unsafeRenderEffect :: forall a. Effect a -> Pure a
 unsafeRenderEffect = Render
 
 -- | Discards
-type Pure a
-  = forall hooks. Render hooks hooks a
+type Pure (a :: Type)
+  = forall (hooks :: Type). Render hooks hooks a
 
 type Hook (newHook :: Type -> Type) a
   = forall hooks. Render hooks (newHook hooks) a
