@@ -16,6 +16,8 @@ module React.Basic.Hooks
   , readRef
   , readRefMaybe
   , writeRef
+  , reactChildrenFromArray
+  , reactChildrenToArray
   , renderRef
   , renderRefMaybe
   , useRef
