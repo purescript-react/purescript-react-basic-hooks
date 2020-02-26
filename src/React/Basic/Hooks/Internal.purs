@@ -23,6 +23,14 @@ import Type.Equality (class TypeEquals)
 -- | body, i.e. during "render". This includes hooks and ends with
 -- | returning JSX (see `pure`), but does not allow arbitrary side
 -- | effects.
+-- |
+-- | The `x` and `y` type arguments represent the stack of effects that this
+-- | `Render` implements, with `x` being the stack at the start of this
+-- | `Render`, and `y` the stack at the end.
+-- |
+-- | See
+-- | [purescript-indexed-monad](https://pursuit.purescript.org/packages/purescript-indexed-monad)
+-- | to understand how the order of the stack is enforced at the type level.
 newtype Render x y a
   = Render (Effect a)
 
@@ -115,10 +123,16 @@ unsafeHook = Render
 unsafeRenderEffect :: forall a. Effect a -> Pure a
 unsafeRenderEffect = Render
 
--- | Discards
+-- | Type alias used to lift otherwise pure functionality into the Render type.
+-- | Not commonly used.
 type Pure a
   = forall hooks. Render hooks hooks a
 
+-- | Type alias for Render representing a hook.
+-- |
+-- | The `newHook` argument is a type constructor which takes a set of existing
+-- | effects and generates a type with a new set of effects (produced by this
+-- | hook) stacked on top.
 type Hook (newHook :: Type -> Type) a
   = forall hooks. Render hooks (newHook hooks) a
 
