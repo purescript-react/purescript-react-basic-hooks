@@ -17,6 +17,10 @@ derive instance ntUseAff :: Newtype (UseAff key a hooks) _
 type Result a
   = Maybe (Either Error a)
 
+-- | `useAff` is used for asynchronous effects or `Aff`. The asynchronous effect
+-- | is re-run whenever the key changes. If another `Aff` runs when the key
+-- | changes before the previous async resolves, it will cancel the previous in
+-- | flight async effect.
 useAff ::
   forall key a.
   Eq key =>
