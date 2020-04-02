@@ -1,4 +1,4 @@
-module ControlledInput where
+module Example where
 
 import Prelude
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
@@ -9,8 +9,8 @@ import React.Basic.Events (EventHandler, handler, merge)
 import React.Basic.Hooks (ReactComponent, UseState, Hook, component, fragment, useState, (/\))
 import React.Basic.Hooks as React
 
-mkControlledInput :: Effect (ReactComponent {})
-mkControlledInput = do
+mkExample :: Effect (ReactComponent {})
+mkExample = do
   component "ControlledInput" \props -> React.do
     firstName <- useInput "hello"
     lastName <- useInput "world"
@@ -39,12 +39,12 @@ useInput initialValue = React.do
   { value, lastChanged } /\ replaceState <- useState { value: initialValue, lastChanged: Nothing }
   pure
     { onChange:
-      handler
-        (preventDefault >>> stopPropagation >>> merge { targetValue, timeStamp }) \{ timeStamp, targetValue } -> do
-        replaceState \_ ->
-          { value: fromMaybe "" targetValue
-          , lastChanged: Just timeStamp
-          }
+        handler
+          (preventDefault >>> stopPropagation >>> merge { targetValue, timeStamp }) \{ timeStamp, targetValue } -> do
+          replaceState \_ ->
+            { value: fromMaybe "" targetValue
+            , lastChanged: Just timeStamp
+            }
     , value
     , lastChanged
     }
