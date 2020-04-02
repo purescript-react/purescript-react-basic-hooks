@@ -1,4 +1,4 @@
-module Refs where
+module Example where
 
 import Prelude
 import Data.Int (round)
@@ -19,8 +19,8 @@ import Web.HTML.HTMLElement (getBoundingClientRect)
 import Web.HTML.HTMLElement as HTMLElement
 import Web.HTML.Window as Window
 
-mkRefs :: Effect (ReactComponent {})
-mkRefs = do
+mkExample :: Effect (ReactComponent {})
+mkExample = do
   component "Refs" \props -> React.do
     mouseDistance1 /\ buttonRef1 <- useNodeDistanceFromMouse
     mouseDistance2 /\ buttonRef2 <- useNodeDistanceFromMouse

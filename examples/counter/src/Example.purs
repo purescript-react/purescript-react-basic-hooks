@@ -1,4 +1,4 @@
-module Counter where
+module Example where
 
 import Prelude
 import Effect (Effect)
@@ -7,8 +7,8 @@ import React.Basic.Events (handler_)
 import React.Basic.Hooks (ReactComponent, component, fragment, useEffect, useState, (/\))
 import React.Basic.Hooks as React
 
-mkCounter :: Effect (ReactComponent {})
-mkCounter = do
+mkExample :: Effect (ReactComponent {})
+mkExample = do
   component "Counter" \props -> React.do
     counter /\ setCounter <- useState 0
     useEffect counter do

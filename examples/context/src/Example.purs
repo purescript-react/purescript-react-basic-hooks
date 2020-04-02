@@ -1,4 +1,4 @@
-module Context where
+module Example where
 
 import Prelude
 import Effect (Effect)
@@ -7,8 +7,8 @@ import React.Basic.Events (handler_)
 import React.Basic.Hooks (type (/\), ReactComponent, JSX, ReactContext, component, createContext, element, provider, useContext, useState, (/\))
 import React.Basic.Hooks as React
 
-mkContext :: Effect (ReactComponent {})
-mkContext = do
+mkExample :: Effect (ReactComponent {})
+mkExample = do
   counterContext <- createContext (0 /\ pure unit)
   store <- mkStore counterContext
   counter <- mkCounter counterContext
@@ -16,10 +16,10 @@ mkContext = do
     pure
       $ element store
           { content:
-            [ element counter {}
-            , element counter {}
-            , element counter {}
-            ]
+              [ element counter {}
+              , element counter {}
+              , element counter {}
+              ]
           }
 
 mkStore ::

@@ -1,4 +1,4 @@
-module MemoCallback where
+module Example where
 
 import Prelude
 import Effect (Effect)
@@ -8,8 +8,8 @@ import React.Basic.Events (handler_)
 import React.Basic.Hooks (ReactComponent, UnsafeReference(..), component, fragment, useCallback, useEffect, useState, (/\))
 import React.Basic.Hooks as React
 
-mkMemoCallback :: Effect (ReactComponent {})
-mkMemoCallback = do
+mkExample :: Effect (ReactComponent {})
+mkExample = do
   component "MemoCallback" \props -> React.do
     counter /\ setCounter <- useState 0
     increment <-

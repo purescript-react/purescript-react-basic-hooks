@@ -1,4 +1,4 @@
-module Reducer where
+module Example where
 
 import Prelude
 import Effect (Effect)
@@ -11,8 +11,8 @@ data Action
   = Increment
   | Decrement
 
-mkReducer :: Effect (ReactComponent {})
-mkReducer = do
+mkExample :: Effect (ReactComponent {})
+mkExample = do
   component "Reducer" \props -> React.do
     state /\ dispatch <-
       useReducer { counter: 0 } \state -> case _ of
