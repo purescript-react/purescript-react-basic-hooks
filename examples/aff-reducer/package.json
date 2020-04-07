@@ -1,0 +1,23 @@
+{
+  "name": "aff-reducer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "serve": "npx parcel html/index.html",
+    "build": "npx spago bundle-app --to output/Main.js -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "purescript": "^0.13.6",
+    "purty": "^4.6.0", 
+    "spago": "^0.13.1",
+    "parcel": "^1.12.4"
+  },
+  "dependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  }
+}
