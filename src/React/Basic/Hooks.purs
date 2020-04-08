@@ -129,8 +129,8 @@ reactChildrenFromArray :: forall a. Array a -> ReactChildren a
 reactChildrenFromArray = unsafeCoerce
 
 -- | Prevents a component from re-rendering if its new props are referentially
--- | equal to its old props (not value-based equality. This is due to the underlying
--- | React implementation.
+-- | equal to its old props (not value-based equality -- this is due to the underlying
+-- | React implementation).
 memo ::
   forall props.
   Effect (ReactComponent props) ->

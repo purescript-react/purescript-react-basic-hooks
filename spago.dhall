@@ -5,6 +5,7 @@ You can edit this file as you like.
 { name = "react-basic-hooks"
 , dependencies =
   [ "aff"
+  , "aff-promise"
   , "console"
   , "effect"
   , "indexed-monad"

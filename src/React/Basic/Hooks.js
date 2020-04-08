@@ -22,13 +22,13 @@ exports.useState_ = function (tuple, initialState) {
   return tuple(state, setState.$$reactBasicHooks$$cachedSetState);
 };
 
-exports.useEffect_ = function (eq, key, effect) {
-  var memoizedKey = exports.useMemo_(eq, key);
+exports.useEffect_ = function (eq, deps, effect) {
+  var memoizedKey = exports.useMemo_(eq, deps);
   React.useEffect(effect, [memoizedKey]);
 };
 
-exports.useLayoutEffect_ = function (eq, key, effect) {
-  var memoizedKey = exports.useMemo_(eq, key);
+exports.useLayoutEffect_ = function (eq, deps, effect) {
+  var memoizedKey = exports.useMemo_(eq, deps);
   React.useLayoutEffect(effect, [memoizedKey]);
 };
 
@@ -66,8 +66,8 @@ exports.useMemo_ = function (eq, a) {
   return memoRef.current;
 };
 
-exports.useLazy_ = function (eq, key, computeA) {
-  var memoizedKey = exports.useMemo_(eq, key);
+exports.useLazy_ = function (eq, deps, computeA) {
+  var memoizedKey = exports.useMemo_(eq, deps);
   return React.useMemo(computeA, [memoizedKey]);
 };
 

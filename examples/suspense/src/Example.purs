@@ -4,6 +4,7 @@ import Prelude
 import Data.Foldable (find)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype, un)
+import Data.Time.Duration (Seconds(..), fromDuration)
 import Effect (Effect)
 import Effect.Aff (Aff, Milliseconds(..), delay, error, message, throwError)
 import React.Basic.DOM as R
@@ -11,14 +12,15 @@ import React.Basic.DOM.Events (capture_)
 import React.Basic.Events (handler_)
 import React.Basic.Hooks (JSX, ReactComponent, component, element, fragment, useState, (/\))
 import React.Basic.Hooks as React
-import React.Basic.Hooks.Aff (useAff)
 import React.Basic.Hooks.ErrorBoundary (mkErrorBoundary)
+import React.Basic.Hooks.Suspense (suspend, suspense)
+import React.Basic.Hooks.Suspense.Store (SuspenseStore, get, mkSuspenseStore)
 
 mkExample :: Effect (ReactComponent {})
 mkExample = do
-  errorBoundary <- mkErrorBoundary "AffExErrorBoundary"
+  errorBoundary <- mkErrorBoundary "SuspenseExErrorBoundary"
   catDetails <- mkCatDetails
-  component "AffEx" \props -> React.do
+  component "SuspenseEx" \props -> React.do
     catKey /\ setCatKey <- useState Nothing
     let
       reset = setCatKey \_ -> Nothing
@@ -32,24 +34,31 @@ mkExample = do
                   [ catKeyList catKey setCatKey
                   , case catKey of
                       Nothing -> mempty
-                      Just k -> catDetails { catKey: k }
+                      Just k ->
+                        R.p_
+                          [ suspense
+                              { fallback: R.text "Loading..."
+                              , children: [ catDetails { catKey: k } ]
+                              }
+                          ]
                   ]
           ]
   where
-  -- This component is the main `useAff` demo. It receives a key
-  -- as a prop and renders both the loading state and the final
-  -- result.
+  -- This component is the main `suspense` demo (but don't forget the `suspense`
+  -- element above!). It receives a key as a prop and renders the result as though
+  -- it were synchronously available.
   mkCatDetails :: Effect ({ catKey :: Key Cat } -> JSX)
-  mkCatDetails =
-    map element do
-      component "CatDetails" \{ catKey } -> React.do
-        catState <- useAff catKey $ fetch catKey
-        pure
-          $ R.p_
-              [ case map entity catState of
-                  Nothing -> R.text "Loading..."
-                  Just (Cat { name }) -> R.text $ "A cat named " <> name
-              ]
+  mkCatDetails = do
+    catStore :: SuspenseStore (Key Cat) _ <-
+      mkSuspenseStore (Just $ fromDuration $ Seconds 10.0) fetch
+    element
+      <$> component "CatDetails" \{ catKey } -> React.do
+          cat <- suspend $ get catStore catKey
+          pure
+            $ R.p_
+                [ case entity cat of
+                    Cat { name } -> R.text $ "A cat named " <> name
+                ]
 
   renderAppError error resetApp =
     fragment
@@ -101,6 +110,8 @@ newtype Key entity
   = Key String
 
 derive instance eqKey :: Eq (Key entity)
+
+derive instance ordKey :: Ord (Key entity)
 
 derive instance ntKey :: Newtype (Key entity) _
 
