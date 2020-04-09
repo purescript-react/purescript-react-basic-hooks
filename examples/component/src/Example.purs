@@ -1,12 +1,11 @@
 module Example where
 
 import Prelude
-import Effect (Effect)
 import React.Basic.DOM as R
-import React.Basic.Hooks (ReactComponent, component, element)
+import React.Basic.Hooks (Component, component)
 import ToggleButton (mkToggleButton)
 
-mkExample :: Effect (ReactComponent {})
+mkExample :: Component Unit
 mkExample = do
   -- create the child components this parent will use
   toggleButton <- mkToggleButton
@@ -15,7 +14,7 @@ mkExample = do
     pure
       $ R.div
           { children:
-              [ element toggleButton { label: "A" }
-              , element toggleButton { label: "B" }
+              [ toggleButton { label: "A" }
+              , toggleButton { label: "B" }
               ]
           }

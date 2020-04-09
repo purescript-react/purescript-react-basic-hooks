@@ -4,17 +4,16 @@ import Prelude
 import Data.Foldable (traverse_)
 import Data.Int as Int
 import Data.Maybe (Maybe(..))
-import Effect (Effect)
 import Effect.Console (log)
 import React.Basic.DOM as R
 import React.Basic.DOM.Events (targetValue)
 import React.Basic.Events (handler, handler_)
-import React.Basic.Hooks (ReactComponent, UnsafeReference(..), component, fragment, useEffect, useLazy, useMemo, useState, (/\))
+import React.Basic.Hooks (Component, UnsafeReference(..), component, fragment, useEffect, useLazy, useMemo, useState, (/\))
 import React.Basic.Hooks as React
 
-mkExample :: Effect (ReactComponent {})
+mkExample :: Component Unit
 mkExample = do
-  component "MemoCallback" \props -> React.do
+  component "MemoCallback" \_ -> React.do
     initialValue /\ setInitialValue <- useState 0
     counter /\ setCounter <- useState initialValue
     increment <-

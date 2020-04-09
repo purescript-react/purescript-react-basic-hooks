@@ -1,18 +1,18 @@
 module Example where
 
 import Prelude
-import Effect (Effect)
+import Effect.Class.Console (log)
 import React.Basic.DOM as R
 import React.Basic.Events (handler_)
-import React.Basic.Hooks (ReactComponent, component, fragment, useEffect, useState, (/\))
+import React.Basic.Hooks (Component, component, fragment, useEffect, useState, (/\))
 import React.Basic.Hooks as React
 
-mkExample :: Effect (ReactComponent {})
+mkExample :: Component Unit
 mkExample = do
-  component "Counter" \props -> React.do
+  component "Counter" \_ -> React.do
     counter /\ setCounter <- useState 0
     useEffect counter do
-      setDocumentTitle $ "Count: " <> show counter
+      log $ "Count: " <> show counter
       pure mempty
     pure
       $ fragment
@@ -21,5 +21,3 @@ mkExample = do
               , children: [ R.text $ "Increment: " <> show counter ]
               }
           ]
-
-foreign import setDocumentTitle :: String -> Effect Unit

@@ -5,10 +5,9 @@ import Data.Int (round)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.Nullable (Nullable, null)
-import Effect (Effect)
 import Math (pow, sqrt)
 import React.Basic.DOM as R
-import React.Basic.Hooks (type (/\), Hook, ReactComponent, Ref, UseEffect, UseRef, UseState, component, fragment, coerceHook, readRefMaybe, useEffect, useRef, useState, (/\))
+import React.Basic.Hooks (type (/\), Component, Hook, Ref, UseEffect, UseRef, UseState, coerceHook, component, fragment, readRefMaybe, useEffect, useRef, useState, (/\))
 import React.Basic.Hooks as React
 import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM (Node)
@@ -19,9 +18,9 @@ import Web.HTML.HTMLElement (getBoundingClientRect)
 import Web.HTML.HTMLElement as HTMLElement
 import Web.HTML.Window as Window
 
-mkExample :: Effect (ReactComponent {})
+mkExample :: Component Unit
 mkExample = do
-  component "Refs" \props -> React.do
+  component "Refs" \_ -> React.do
     mouseDistance1 /\ buttonRef1 <- useNodeDistanceFromMouse
     mouseDistance2 /\ buttonRef2 <- useNodeDistanceFromMouse
     mouseDistance3 /\ buttonRef3 <- useNodeDistanceFromMouse

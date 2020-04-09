@@ -5,12 +5,13 @@ import Data.Array as Array
 import Data.Foldable (traverse_)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
+import React.Basic (keyed)
 import React.Basic as RB
 import React.Basic.DOM as R
 import React.Basic.DOM.Events (preventDefault, stopPropagation, targetValue)
 import React.Basic.Events (handler, handler_)
 import React.Basic.Events as Events
-import React.Basic.Hooks (ReactComponent, component, element, elementKeyed, empty, memo, useReducer, useState, (/\))
+import React.Basic.Hooks (Component, component, empty, useReducer, useState, (/\))
 import React.Basic.Hooks as React
 
 data Action
@@ -47,28 +48,28 @@ reducer state = case _ of
     Nothing -> state
   SetFilter filter -> state { filter = filter }
 
-mkExample :: Effect (ReactComponent {})
+mkExample :: Component Unit
 mkExample = do
   let
     initialState = { todos: [], filter: All }
-  todoInput <- memo mkTodoInput
-  todoRow <- memo mkTodoRow
-  todoFilters <- memo mkTodoFilters
-  component "TodoApp" \props -> React.do
+  todoInput <- mkTodoInput
+  todoRow <- mkTodoRow
+  todoFilters <- mkTodoFilters
+  component "TodoApp" \_ -> React.do
     state /\ dispatch <- useReducer initialState reducer
     pure
       $ R.div
           { children:
-              [ element todoInput { dispatch }
+              [ todoInput { dispatch }
               , R.div_
                   $ flip Array.mapWithIndex state.todos \id todo ->
                       if state.filter == All
                         || (todo.isComplete && state.filter == Complete)
                         || (not todo.isComplete && state.filter == Incomplete) then
-                        elementKeyed todoRow { key: show id, id, todo, dispatch }
+                        keyed (show id) $ todoRow { id, todo, dispatch }
                       else
                         empty
-              , element todoFilters { filter: state.filter, dispatch }
+              , todoFilters { filter: state.filter, dispatch }
               ]
           , style:
               R.css
@@ -82,7 +83,7 @@ mkExample = do
   where
   todoAppEl = RB.element $ R.unsafeCreateDOMComponent "todo-app"
 
-mkTodoInput :: Effect (ReactComponent { dispatch :: Action -> Effect Unit })
+mkTodoInput :: Component { dispatch :: Action -> Effect Unit }
 mkTodoInput = do
   component "TodoInput" \props -> React.do
     value /\ setValue <- useState ""
@@ -105,7 +106,7 @@ mkTodoInput = do
           , style: R.css { marginBottom: "16px", width: "100%" }
           }
 
-mkTodoRow :: Effect (ReactComponent { id :: Int, todo :: Todo, dispatch :: Action -> Effect Unit })
+mkTodoRow :: Component { id :: Int, todo :: Todo, dispatch :: Action -> Effect Unit }
 mkTodoRow =
   component "Todo" \props -> React.do
     pure
@@ -137,7 +138,7 @@ mkTodoRow =
                 }
           }
 
-mkTodoFilters :: Effect (ReactComponent { filter :: TodoFilter, dispatch :: Action -> Effect Unit })
+mkTodoFilters :: Component { filter :: TodoFilter, dispatch :: Action -> Effect Unit }
 mkTodoFilters =
   component "TodoFilters" \props -> React.do
     let

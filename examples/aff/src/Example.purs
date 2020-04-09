@@ -4,17 +4,16 @@ import Prelude
 import Data.Foldable (find)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype, un)
-import Effect (Effect)
 import Effect.Aff (Aff, Milliseconds(..), delay, error, message, throwError)
 import React.Basic.DOM as R
 import React.Basic.DOM.Events (capture_)
 import React.Basic.Events (handler_)
-import React.Basic.Hooks (JSX, ReactComponent, component, element, fragment, useState, (/\))
+import React.Basic.Hooks (Component, component, fragment, useState, (/\))
 import React.Basic.Hooks as React
 import React.Basic.Hooks.Aff (useAff)
 import React.Basic.Hooks.ErrorBoundary (mkErrorBoundary)
 
-mkExample :: Effect (ReactComponent {})
+mkExample :: Component Unit
 mkExample = do
   errorBoundary <- mkErrorBoundary "AffExErrorBoundary"
   catDetails <- mkCatDetails
@@ -32,24 +31,23 @@ mkExample = do
                   [ catKeyList catKey setCatKey
                   , case catKey of
                       Nothing -> mempty
-                      Just k -> catDetails { catKey: k }
+                      Just k -> catDetails k
                   ]
           ]
   where
   -- This component is the main `useAff` demo. It receives a key
   -- as a prop and renders both the loading state and the final
   -- result.
-  mkCatDetails :: Effect ({ catKey :: Key Cat } -> JSX)
-  mkCatDetails =
-    map element do
-      component "CatDetails" \{ catKey } -> React.do
-        catState <- useAff catKey $ fetch catKey
-        pure
-          $ R.p_
-              [ case map entity catState of
-                  Nothing -> R.text "Loading..."
-                  Just (Cat { name }) -> R.text $ "A cat named " <> name
-              ]
+  mkCatDetails :: Component (Key Cat)
+  mkCatDetails = do
+    component "CatDetails" \catKey -> React.do
+      catState <- useAff catKey $ fetch catKey
+      pure
+        $ R.p_
+            [ case map entity catState of
+                Nothing -> R.text "Loading..."
+                Just (Cat { name }) -> R.text $ "A cat named " <> name
+            ]
 
   renderAppError error resetApp =
     fragment

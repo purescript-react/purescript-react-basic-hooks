@@ -1,7 +1,9 @@
 module React.Basic.Hooks
-  ( component
-  , componentWithChildren
-  , componentFromHook
+  ( Component
+  , component
+  , reactComponent
+  , reactComponentWithChildren
+  , reactComponentFromHook
   , ReactChildren
   , memo
   , useState
@@ -52,13 +54,31 @@ import React.Basic.Hooks.Internal (Hook, Pure, Render, bind, discard, coerceHook
 import Unsafe.Coerce (unsafeCoerce)
 import Unsafe.Reference (unsafeRefEq)
 
+-- | A simple type alias to clean up component definitions.
+type Component props
+  = Effect (props -> JSX)
+
+-- | Create a component function given a display name and render function.
+-- | Creating components is effectful because React uses the function
+-- | instance as the component's "identity" or "type". Components should
+-- | be created during a bootstrap phase and not within component
+-- | lifecycles or render functions.
+component ::
+  forall hooks props.
+  String ->
+  (props -> Render Unit hooks JSX) ->
+  Component props
+component name renderFn = Prelude.do
+  c <- reactComponent name (renderFn <<< _.nested)
+  pure (element c <<< { nested: _ })
+
 -- | Create a React component given a display name and render function.
 -- | Creating components is effectful because React uses the function
 -- | instance as the component's "identity" or "type". Components should
 -- | be created during a bootstrap phase and not within component
 -- | lifecycles or render functions. See `componentWithChildren` if
 -- | you need to use the `children` prop.
-component ::
+reactComponent ::
   forall hooks props.
   Lacks "children" props =>
   Lacks "key" props =>
@@ -66,26 +86,26 @@ component ::
   String ->
   ({ | props } -> Render Unit hooks JSX) ->
   Effect (ReactComponent { | props })
-component = unsafeComponent
+reactComponent = unsafeReactComponent
 
 -- | Create a React component given a display name and render function.
 -- | This is the same as `component` but allows the use of the `children`
 -- | prop.
-componentWithChildren ::
+reactComponentWithChildren ::
   forall hooks props children.
   Lacks "key" props =>
   Lacks "ref" props =>
   String ->
   ({ children :: ReactChildren children | props } -> Render Unit hooks JSX) ->
   Effect (ReactComponent { children :: ReactChildren children | props })
-componentWithChildren = unsafeComponent
+reactComponentWithChildren = unsafeReactComponent
 
 -- | Convert a hook to a render-prop component. The value returned from the
 -- | hook will be passed to the `render` prop, a function from that value
 -- | to `JSX`.
 -- |
 -- | This function is useful for consuming a hook within a non-hook component.
-componentFromHook ::
+reactComponentFromHook ::
   forall hooks props r.
   Lacks "children" props =>
   Lacks "key" props =>
@@ -93,17 +113,17 @@ componentFromHook ::
   String ->
   ({ render :: r -> JSX | props } -> Hook hooks r) ->
   Effect (ReactComponent { render :: r -> JSX | props })
-componentFromHook name propsToHook = do
-  component name \props -> map props.render $ propsToHook props
+reactComponentFromHook name propsToHook = do
+  reactComponent name \props -> map props.render $ propsToHook props
 
-unsafeComponent ::
+unsafeReactComponent ::
   forall hooks props.
   Lacks "key" props =>
   Lacks "ref" props =>
   String ->
   ({ | props } -> Render Unit hooks JSX) ->
   Effect (ReactComponent { | props })
-unsafeComponent name renderFn =
+unsafeReactComponent name renderFn =
   let
     c =
       unsafeReactFunctionComponent

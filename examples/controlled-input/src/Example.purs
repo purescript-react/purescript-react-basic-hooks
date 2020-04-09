@@ -2,16 +2,15 @@ module Example where
 
 import Prelude
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
-import Effect (Effect)
 import React.Basic.DOM as R
 import React.Basic.DOM.Events (preventDefault, stopPropagation, targetValue, timeStamp)
 import React.Basic.Events (EventHandler, handler, merge)
-import React.Basic.Hooks (ReactComponent, UseState, Hook, component, fragment, useState, (/\))
+import React.Basic.Hooks (Component, Hook, UseState, component, fragment, useState, (/\))
 import React.Basic.Hooks as React
 
-mkExample :: Effect (ReactComponent {})
+mkExample :: Component Unit
 mkExample = do
-  component "ControlledInput" \props -> React.do
+  component "ControlledInput" \_ -> React.do
     firstName <- useInput "hello"
     lastName <- useInput "world"
     pure

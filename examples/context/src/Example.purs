@@ -4,29 +4,27 @@ import Prelude
 import Effect (Effect)
 import React.Basic.DOM as R
 import React.Basic.Events (handler_)
-import React.Basic.Hooks (type (/\), ReactComponent, JSX, ReactContext, component, createContext, element, provider, useContext, useState, (/\))
+import React.Basic.Hooks (type (/\), JSX, ReactContext, Component, component, createContext, provider, useContext, useState, (/\))
 import React.Basic.Hooks as React
 
-mkExample :: Effect (ReactComponent {})
+mkExample :: Component Unit
 mkExample = do
   counterContext <- createContext (0 /\ pure unit)
   store <- mkStore counterContext
   counter <- mkCounter counterContext
-  component "Context" \props -> React.do
+  component "Context" \_ -> React.do
     pure
-      $ element store
-          { content:
-              [ element counter {}
-              , element counter {}
-              , element counter {}
-              ]
-          }
+      $ store
+          [ counter unit
+          , counter unit
+          , counter unit
+          ]
 
 mkStore ::
   ReactContext (Int /\ (Effect Unit)) ->
-  Effect (ReactComponent { content :: Array JSX })
+  Component (Array JSX)
 mkStore context = do
-  component "Store" \{ content } -> React.do
+  component "Store" \content -> React.do
     counter /\ setCounter <- useState 0
     let
       increment = setCounter (_ + 1)
@@ -37,9 +35,9 @@ mkStore context = do
 
 mkCounter ::
   ReactContext (Int /\ (Effect Unit)) ->
-  Effect (ReactComponent {})
+  Component Unit
 mkCounter counterContext = do
-  component "Counter" \props -> React.do
+  component "Counter" \_ -> React.do
     counter /\ increment <- useContext counterContext
     pure
       $ R.button

@@ -5,22 +5,21 @@ import Data.Foldable (find)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype, un)
 import Data.Time.Duration (Seconds(..), fromDuration)
-import Effect (Effect)
 import Effect.Aff (Aff, Milliseconds(..), delay, error, message, throwError)
 import React.Basic.DOM as R
 import React.Basic.DOM.Events (capture_)
 import React.Basic.Events (handler_)
-import React.Basic.Hooks (JSX, ReactComponent, component, element, fragment, useState, (/\))
+import React.Basic.Hooks (Component, component, fragment, useState, (/\))
 import React.Basic.Hooks as React
 import React.Basic.Hooks.ErrorBoundary (mkErrorBoundary)
 import React.Basic.Hooks.Suspense (suspend, suspense)
 import React.Basic.Hooks.Suspense.Store (SuspenseStore, get, mkSuspenseStore)
 
-mkExample :: Effect (ReactComponent {})
+mkExample :: Component Unit
 mkExample = do
   errorBoundary <- mkErrorBoundary "SuspenseExErrorBoundary"
   catDetails <- mkCatDetails
-  component "SuspenseEx" \props -> React.do
+  component "SuspenseEx" \_ -> React.do
     catKey /\ setCatKey <- useState Nothing
     let
       reset = setCatKey \_ -> Nothing
@@ -38,7 +37,7 @@ mkExample = do
                         R.p_
                           [ suspense
                               { fallback: R.text "Loading..."
-                              , children: [ catDetails { catKey: k } ]
+                              , children: [ catDetails k ]
                               }
                           ]
                   ]
@@ -47,18 +46,17 @@ mkExample = do
   -- This component is the main `suspense` demo (but don't forget the `suspense`
   -- element above!). It receives a key as a prop and renders the result as though
   -- it were synchronously available.
-  mkCatDetails :: Effect ({ catKey :: Key Cat } -> JSX)
+  mkCatDetails :: Component (Key Cat)
   mkCatDetails = do
     catStore :: SuspenseStore (Key Cat) _ <-
       mkSuspenseStore (Just $ fromDuration $ Seconds 10.0) fetch
-    element
-      <$> component "CatDetails" \{ catKey } -> React.do
-          cat <- suspend $ get catStore catKey
-          pure
-            $ R.p_
-                [ case entity cat of
-                    Cat { name } -> R.text $ "A cat named " <> name
-                ]
+    component "CatDetails" \catKey -> React.do
+      cat <- suspend $ get catStore catKey
+      pure
+        $ R.p_
+            [ case entity cat of
+                Cat { name } -> R.text $ "A cat named " <> name
+            ]
 
   renderAppError error resetApp =
     fragment

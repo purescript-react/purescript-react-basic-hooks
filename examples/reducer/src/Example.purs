@@ -1,19 +1,18 @@
 module Example where
 
 import Prelude
-import Effect (Effect)
 import React.Basic.DOM as R
 import React.Basic.Events (handler_)
-import React.Basic.Hooks (ReactComponent, component, fragment, useReducer, (/\))
+import React.Basic.Hooks (Component, component, fragment, useReducer, (/\))
 import React.Basic.Hooks as React
 
 data Action
   = Increment
   | Decrement
 
-mkExample :: Effect (ReactComponent {})
+mkExample :: Component Unit
 mkExample = do
-  component "Reducer" \props -> React.do
+  component "Reducer" \_ -> React.do
     state /\ dispatch <-
       useReducer { counter: 0 } \state -> case _ of
         Increment -> state { counter = state.counter + 1 }
