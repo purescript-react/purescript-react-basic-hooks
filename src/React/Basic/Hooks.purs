@@ -1,34 +1,36 @@
 module React.Basic.Hooks
-  ( component
-  , componentWithChildren
-  , componentFromHook
+  ( Component
+  , component
+  , reactComponent
+  , reactComponentWithChildren
+  , reactComponentFromHook
   , ReactChildren
   , memo
-  , UseState
   , useState
-  , UseEffect
+  , UseState
   , useEffect
-  , UseLayoutEffect
+  , useEffectOnce
+  , useEffectAlways
+  , UseEffect
   , useLayoutEffect
-  , UseReducer
+  , useLayoutEffectOnce
+  , useLayoutEffectAlways
+  , UseLayoutEffect
   , useReducer
-  , UseRef
+  , UseReducer
   , readRef
   , readRefMaybe
   , writeRef
   , reactChildrenFromArray
   , reactChildrenToArray
-  , renderRef
-  , renderRefMaybe
   , useRef
-  , UseContext
+  , UseRef
   , useContext
-  , UseMemo
+  , UseContext
   , useMemo
-  , UseCallback
-  , useCallback
-  , UseEqCache
-  , useEqCache
+  , UseMemo
+  , useLazy
+  , UseLazy
   , UnsafeReference(..)
   , displayName
   , module React.Basic.Hooks.Internal
@@ -52,13 +54,31 @@ import React.Basic.Hooks.Internal (Hook, Pure, Render, bind, discard, coerceHook
 import Unsafe.Coerce (unsafeCoerce)
 import Unsafe.Reference (unsafeRefEq)
 
+-- | A simple type alias to clean up component definitions.
+type Component props
+  = Effect (props -> JSX)
+
+-- | Create a component function given a display name and render function.
+-- | Creating components is effectful because React uses the function
+-- | instance as the component's "identity" or "type". Components should
+-- | be created during a bootstrap phase and not within component
+-- | lifecycles or render functions.
+component ::
+  forall hooks props.
+  String ->
+  (props -> Render Unit hooks JSX) ->
+  Component props
+component name renderFn = Prelude.do
+  c <- reactComponent name (renderFn <<< _.nested)
+  pure (element c <<< { nested: _ })
+
 -- | Create a React component given a display name and render function.
 -- | Creating components is effectful because React uses the function
 -- | instance as the component's "identity" or "type". Components should
 -- | be created during a bootstrap phase and not within component
 -- | lifecycles or render functions. See `componentWithChildren` if
 -- | you need to use the `children` prop.
-component ::
+reactComponent ::
   forall hooks props.
   Lacks "children" props =>
   Lacks "key" props =>
@@ -66,26 +86,26 @@ component ::
   String ->
   ({ | props } -> Render Unit hooks JSX) ->
   Effect (ReactComponent { | props })
-component = unsafeComponent
+reactComponent = unsafeReactComponent
 
 -- | Create a React component given a display name and render function.
 -- | This is the same as `component` but allows the use of the `children`
 -- | prop.
-componentWithChildren ::
+reactComponentWithChildren ::
   forall hooks props children.
   Lacks "key" props =>
   Lacks "ref" props =>
   String ->
   ({ children :: ReactChildren children | props } -> Render Unit hooks JSX) ->
   Effect (ReactComponent { children :: ReactChildren children | props })
-componentWithChildren = unsafeComponent
+reactComponentWithChildren = unsafeReactComponent
 
 -- | Convert a hook to a render-prop component. The value returned from the
 -- | hook will be passed to the `render` prop, a function from that value
 -- | to `JSX`.
 -- |
 -- | This function is useful for consuming a hook within a non-hook component.
-componentFromHook ::
+reactComponentFromHook ::
   forall hooks props r.
   Lacks "children" props =>
   Lacks "key" props =>
@@ -93,17 +113,17 @@ componentFromHook ::
   String ->
   ({ render :: r -> JSX | props } -> Hook hooks r) ->
   Effect (ReactComponent { render :: r -> JSX | props })
-componentFromHook name propsToHook = do
-  component name \props -> map props.render $ propsToHook props
+reactComponentFromHook name propsToHook = do
+  reactComponent name \props -> map props.render $ propsToHook props
 
-unsafeComponent ::
+unsafeReactComponent ::
   forall hooks props.
   Lacks "key" props =>
   Lacks "ref" props =>
   String ->
   ({ | props } -> Render Unit hooks JSX) ->
   Effect (ReactComponent { | props })
-unsafeComponent name renderFn =
+unsafeReactComponent name renderFn =
   let
     c =
       unsafeReactFunctionComponent
@@ -128,13 +148,14 @@ foreign import reactChildrenToArray :: forall a. ReactChildren a -> Array a
 reactChildrenFromArray :: forall a. Array a -> ReactChildren a
 reactChildrenFromArray = unsafeCoerce
 
+-- | Prevents a component from re-rendering if its new props are referentially
+-- | equal to its old props (not value-based equality -- this is due to the underlying
+-- | React implementation).
 memo ::
   forall props.
   Effect (ReactComponent props) ->
   Effect (ReactComponent props)
 memo = flip Prelude.bind (runEffectFn1 memo_)
-
-foreign import data UseState :: Type -> Type -> Type
 
 useState ::
   forall state.
@@ -144,29 +165,53 @@ useState initialState =
   unsafeHook do
     runEffectFn2 useState_ (mkFn2 Tuple) initialState
 
+foreign import data UseState :: Type -> Type -> Type
+
+-- | Runs the given effect when the component is mounted and any time the given
+-- | dependencies change. The effect should return its cleanup function. For
+-- | example, if the effect registers a global event listener, it should return
+-- | and Effect which removes the listener.
+useEffect ::
+  forall deps.
+  Eq deps =>
+  deps ->
+  Effect (Effect Unit) ->
+  Hook (UseEffect deps) Unit
+useEffect deps effect = unsafeHook (runEffectFn3 useEffect_ (mkFn2 eq) deps effect)
+
+-- | Like `useEffect`, but the effect is only performed a single time per component
+-- | instance. Prefer `useEffect` with a proper dependency list whenever possible!
+useEffectOnce :: Effect (Effect Unit) -> Hook (UseEffect Unit) Unit
+useEffectOnce effect = unsafeHook (runEffectFn3 useEffect_ (mkFn2 \_ _ -> true) unit effect)
+
+-- | Like `useEffect`, but the effect is performed on every render. Prefer `useEffect`
+-- | with a proper dependency list whenever possible!
+useEffectAlways :: Effect (Effect Unit) -> Hook (UseEffect Unit) Unit
+useEffectAlways effect = unsafeHook (runEffectFn3 useEffect_ (mkFn2 \_ _ -> false) unit effect)
+
 foreign import data UseEffect :: Type -> Type -> Type
 
--- | The effect will be run when the component is mounted, and the effect
--- | returned from the function will be run on cleanup
-useEffect ::
-  forall key.
-  Eq key =>
-  key ->
-  Effect (Effect Unit) ->
-  Hook (UseEffect key) Unit
-useEffect key effect = unsafeHook (runEffectFn3 useEffect_ (mkFn2 eq) key effect)
-
-foreign import data UseLayoutEffect :: Type -> Type -> Type
-
+-- | Like `useEffect`, but the effect is performed on every render. Prefer `useEffect`
+-- | with a proper dependency list whenever possible!
 useLayoutEffect ::
-  forall key.
-  Eq key =>
-  key ->
+  forall deps.
+  Eq deps =>
+  deps ->
   Effect (Effect Unit) ->
-  Hook (UseLayoutEffect key) Unit
+  Hook (UseLayoutEffect deps) Unit
 useLayoutEffect keys effect = unsafeHook (runEffectFn3 useLayoutEffect_ (mkFn2 eq) keys effect)
 
-foreign import data UseReducer :: Type -> Type -> Type -> Type
+-- | Like `useLayoutEffect`, but the effect is only performed a single time per component
+-- | instance. Prefer `useLayoutEffect` with a proper dependency list whenever possible!
+useLayoutEffectOnce :: Effect (Effect Unit) -> Hook (UseLayoutEffect Unit) Unit
+useLayoutEffectOnce effect = unsafeHook (runEffectFn3 useLayoutEffect_ (mkFn2 \_ _ -> true) unit effect)
+
+-- | Like `useLayoutEffect`, but the effect is performed on every render. Prefer `useLayoutEffect`
+-- | with a proper dependency list whenever possible!
+useLayoutEffectAlways :: Effect (Effect Unit) -> Hook (UseLayoutEffect Unit) Unit
+useLayoutEffectAlways effect = unsafeHook (runEffectFn3 useLayoutEffect_ (mkFn2 \_ _ -> false) unit effect)
+
+foreign import data UseLayoutEffect :: Type -> Type -> Type
 
 useReducer ::
   forall state action.
@@ -180,7 +225,7 @@ useReducer initialState reducer =
       (mkFn2 reducer)
       initialState
 
-foreign import data UseRef :: Type -> Type -> Type
+foreign import data UseReducer :: Type -> Type -> Type -> Type
 
 useRef :: forall a. a -> Hook (UseRef a) (Ref a)
 useRef initialValue =
@@ -196,45 +241,40 @@ readRefMaybe a = map toMaybe (readRef a)
 writeRef :: forall a. Ref a -> a -> Effect Unit
 writeRef = runEffectFn2 writeRef_
 
-renderRef :: forall a. Ref a -> Pure a
-renderRef ref = unsafeRenderEffect (readRef ref)
-
-renderRefMaybe :: forall a. Ref (Nullable a) -> Pure (Maybe a)
-renderRefMaybe a = unsafeRenderEffect (readRefMaybe a)
-
-foreign import data UseContext :: Type -> Type -> Type
+foreign import data UseRef :: Type -> Type -> Type
 
 useContext :: forall a. ReactContext a -> Hook (UseContext a) a
 useContext context = unsafeHook (runEffectFn1 useContext_ context)
 
-foreign import data UseMemo :: Type -> Type -> Type -> Type
+foreign import data UseContext :: Type -> Type -> Type
 
+-- | Use this hook to memoize a value based on a set of deps. This is
+-- | useful when you need to take advantage of `memo` and need to pass
+-- | referentially equal values to a child component. This is purely
+-- | a performance optimization and shouldn't change the behavior of
+-- | your component.
+-- |
+-- | If building a value of `a` is expensive, try `useLazy`.
 useMemo ::
-  forall key a.
-  Eq key =>
-  key ->
-  (Unit -> a) ->
-  Hook (UseMemo key a) a
-useMemo key computeA = unsafeHook (runEffectFn3 useMemo_ (mkFn2 eq) key computeA)
-
-foreign import data UseCallback :: Type -> Type -> Type -> Type
-
-useCallback ::
-  forall key a.
-  Eq key =>
-  key ->
-  a ->
-  Hook (UseCallback key a) a
-useCallback key computeA = unsafeHook (runEffectFn3 useCallback_ (mkFn2 eq) key computeA)
-
-foreign import data UseEqCache :: Type -> Type -> Type
-
-useEqCache ::
   forall a.
   Eq a =>
   a ->
-  Hook (UseCallback a a) a
-useEqCache a = unsafeHook (runEffectFn2 useEqCache_ (mkFn2 eq) a)
+  Hook (UseMemo a) a
+useMemo a = unsafeHook (runEffectFn2 useMemo_ (mkFn2 eq) a)
+
+foreign import data UseMemo :: Type -> Type -> Type
+
+-- | Lazily compute a value. The result is cached in the component
+-- | instance until the deps change.
+useLazy ::
+  forall deps a.
+  Eq deps =>
+  deps ->
+  (Unit -> a) ->
+  Hook (UseLazy deps a) a
+useLazy deps computeA = unsafeHook (runEffectFn3 useLazy_ (mkFn2 eq) deps computeA)
+
+foreign import data UseLazy :: Type -> Type -> Type -> Type
 
 newtype UnsafeReference a
   = UnsafeReference a
@@ -274,18 +314,18 @@ foreign import useState_ ::
     (state /\ ((state -> state) -> Effect Unit))
 
 foreign import useEffect_ ::
-  forall key.
+  forall deps.
   EffectFn3
-    (Fn2 key key Boolean)
-    key
+    (Fn2 deps deps Boolean)
+    deps
     (Effect (Effect Unit))
     Unit
 
 foreign import useLayoutEffect_ ::
-  forall key.
+  forall deps.
   EffectFn3
-    (Fn2 key key Boolean)
-    key
+    (Fn2 deps deps Boolean)
+    deps
     (Effect (Effect Unit))
     Unit
 
@@ -323,24 +363,16 @@ foreign import useContext_ ::
     a
 
 foreign import useMemo_ ::
-  forall key a.
-  EffectFn3
-    (Fn2 key key Boolean)
-    key
-    (Unit -> a)
-    a
-
-foreign import useCallback_ ::
-  forall key a.
-  EffectFn3
-    (Fn2 key key Boolean)
-    key
-    a
-    a
-
-foreign import useEqCache_ ::
   forall a.
   EffectFn2
     (Fn2 a a Boolean)
     a
+    a
+
+foreign import useLazy_ ::
+  forall deps a.
+  EffectFn3
+    (Fn2 deps deps Boolean)
+    deps
+    (Unit -> a)
     a

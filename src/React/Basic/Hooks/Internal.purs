@@ -44,11 +44,11 @@ newtype Render x y a
 -- | to the full original type and `UseAff` is never seen:
 -- |
 -- | ```purs
--- | type UseAff key a hooks
--- |   = UseEffect key (UseState (Result a) hooks)
+-- | type UseAff deps a hooks
+-- |   = UseEffect deps (UseState (Result a) hooks)
 -- |
--- | useAff :: ... -> Hook (UseAff key a) (Result a)
--- | useAff key aff = React.do
+-- | useAff :: ... -> Hook (UseAff deps a) (Result a)
+-- | useAff deps aff = React.do
 -- |   ...
 -- | ```
 -- |
@@ -56,13 +56,13 @@ newtype Render x y a
 -- | instead, hiding the internal implementation:
 -- |
 -- | ```purs
--- | newtype UseAff key a hooks
--- |   = UseAff (UseEffect key (UseState (Result a) hooks))
+-- | newtype UseAff deps a hooks
+-- |   = UseAff (UseEffect deps (UseState (Result a) hooks))
 -- |
--- | derive instance ntUseAff :: Newtype (UseAff key a hooks) _
+-- | derive instance ntUseAff :: Newtype (UseAff deps a hooks) _
 -- |
--- | useAff :: ... -> Hook (UseAff key a) (Result a)
--- | useAff key aff = coerceHook React.do
+-- | useAff :: ... -> Hook (UseAff deps a) (Result a)
+-- | useAff deps aff = coerceHook React.do
 -- |   ...
 -- | ```
 -- |
@@ -88,8 +88,8 @@ coerceHook (Render a) = Render a
 -- | type (the `newHook` type variable used here) _MUST_
 -- | contain all relevant types. For example, `UseState`
 -- | has a phantom type to track the type of the value contained.
--- | `useEffect` tracks the type used as the key. `useAff` tracks
--- | both the key and the resulting response's type. Forgetting
+-- | `useEffect` tracks the type used as the deps. `useAff` tracks
+-- | both the deps and the resulting response's type. Forgetting
 -- | to do this allows the consumer to reorder hook effects. If
 -- | `useState` didn't track the return type the following
 -- | extremely unsafe code would be allowed:

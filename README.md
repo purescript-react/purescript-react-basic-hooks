@@ -31,11 +31,12 @@ mkCounter = do
 
 More examples:
 
-- [Counter with an effect](./examples/counter/src/Counter.purs)
-- [Reducer/action-style](./examples/reducer/src/Reducer.purs)
-- [Controlled inputs](./examples/controlled-input/src/ControlledInput.purs)
-- Components: [Parent](./examples/component/src/Container.purs) and [Child](./examples/component/src/ToggleButton.purs)
-- [Refs to DOM nodes](./examples/refs/src/Refs.purs) (and extracting hook logic from a component for reuse)
-- [A Todo App](./examples/todo-app/src/TodoApp.purs) (components, inputs, state)
-- [Context](./examples/context/src/Context.purs) (creating and consuming React context)
-- [Aff helper](./examples/aff/src/AffEx.purs) (async state management)
+- [Counter with an effect](./examples/counter/src/Example.purs)
+- [Reducer/action-style](./examples/reducer/src/Example.purs)
+- [Controlled inputs](./examples/controlled-input/src/Example.purs)
+- Components: [Parent](./examples/component/src/Example.purs) and [Child](./examples/component/src/ToggleButton.purs)
+- [Refs to DOM nodes](./examples/refs/src/Example.purs) (and extracting hook logic from a component for reuse)
+- [A Todo App](./examples/todo-app/src/Example.purs) (components, inputs, state)
+- [Context](./examples/context/src/Example.purs) (creating and consuming React context)
+- [Aff](./examples/aff/src/Example.purs) (rendering async data, using error boundaries)
+- [Suspense](./examples/suspense/src/Example.purs) (experimental, React Suspense demo -- similar to the Aff example, but the loading state is managed by the parent instead of the detail rendering component)
