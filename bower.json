@@ -9,7 +9,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/spicydonuts/purescript-react-basic-hooks.git"
+    "url": "https://github.com/spicydonuts/purescript-react-basic-hooks.git"
   },
   "dependencies": {
     "purescript-prelude": "^4.1.0",
@@ -18,7 +18,8 @@
     "purescript-react-basic": "^10.0.0 || ^11.0.0 || ^12.0.0 || ^13.0.0",
     "purescript-indexed-monad": "^1.0.0",
     "purescript-unsafe-reference": "^3.0.1",
-    "purescript-aff": "^5.1.1"
+    "purescript-aff": "^5.1.1",
+    "purescript-aff-promise": "^2.1.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^4.0.0"
