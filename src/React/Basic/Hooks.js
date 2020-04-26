@@ -27,9 +27,17 @@ exports.useEffect_ = function (eq, deps, effect) {
   React.useEffect(effect, [memoizedKey]);
 };
 
+exports.useEffectAlways_ = function (effect) {
+  React.useEffect(effect);
+};
+
 exports.useLayoutEffect_ = function (eq, deps, effect) {
   var memoizedKey = exports.useMemo_(eq, deps);
   React.useLayoutEffect(effect, [memoizedKey]);
+};
+
+exports.useLayoutEffectAlways_ = function (effect) {
+  React.useLayoutEffect(effect);
 };
 
 exports.useReducer_ = function (tuple, reducer, initialState, initialAction) {
