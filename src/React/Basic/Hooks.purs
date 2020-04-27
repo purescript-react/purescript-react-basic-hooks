@@ -187,7 +187,7 @@ useEffectOnce effect = unsafeHook (runEffectFn3 useEffect_ (mkFn2 \_ _ -> true) 
 -- | Like `useEffect`, but the effect is performed on every render. Prefer `useEffect`
 -- | with a proper dependency list whenever possible!
 useEffectAlways :: Effect (Effect Unit) -> Hook (UseEffect Unit) Unit
-useEffectAlways effect = unsafeHook (runEffectFn3 useEffect_ (mkFn2 \_ _ -> false) unit effect)
+useEffectAlways effect = unsafeHook (runEffectFn1 useEffectAlways_ effect)
 
 foreign import data UseEffect :: Type -> Type -> Type
 
@@ -209,7 +209,7 @@ useLayoutEffectOnce effect = unsafeHook (runEffectFn3 useLayoutEffect_ (mkFn2 \_
 -- | Like `useLayoutEffect`, but the effect is performed on every render. Prefer `useLayoutEffect`
 -- | with a proper dependency list whenever possible!
 useLayoutEffectAlways :: Effect (Effect Unit) -> Hook (UseLayoutEffect Unit) Unit
-useLayoutEffectAlways effect = unsafeHook (runEffectFn3 useLayoutEffect_ (mkFn2 \_ _ -> false) unit effect)
+useLayoutEffectAlways effect = unsafeHook (runEffectFn1 useLayoutEffectAlways_ effect)
 
 foreign import data UseLayoutEffect :: Type -> Type -> Type
 
@@ -321,11 +321,21 @@ foreign import useEffect_ ::
     (Effect (Effect Unit))
     Unit
 
+foreign import useEffectAlways_ ::
+  EffectFn1
+    (Effect (Effect Unit))
+    Unit
+
 foreign import useLayoutEffect_ ::
   forall deps.
   EffectFn3
     (Fn2 deps deps Boolean)
     deps
+    (Effect (Effect Unit))
+    Unit
+
+foreign import useLayoutEffectAlways_ ::
+  EffectFn1
     (Effect (Effect Unit))
     Unit
 
