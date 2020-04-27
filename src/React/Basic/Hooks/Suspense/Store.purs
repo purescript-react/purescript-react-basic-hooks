@@ -9,18 +9,24 @@ import Prelude
 import Control.Alt ((<|>))
 import Data.DateTime.Instant (Instant, unInstant)
 import Data.Either (Either(..))
+import Data.Int (ceil)
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
-import Data.Time.Duration (Milliseconds)
+import Data.Newtype (un)
+import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
 import Effect.Aff (Aff, attempt, launchAff, throwError)
 import Effect.Class (liftEffect)
+import Effect.Console (warn)
+import Effect.Exception (try)
 import Effect.Now (now)
 import Effect.Ref (Ref)
 import Effect.Ref as Ref
 import React.Basic.Hooks (type (/\), (/\))
 import React.Basic.Hooks.Suspense (Suspended(..), SuspenseResult(..))
+import Web.HTML (window)
+import Web.HTML.Window (requestIdleCallback)
 
 -- | Simple key-based cache.
 mkSuspenseStore ::
@@ -32,19 +38,35 @@ mkSuspenseStore ::
 mkSuspenseStore defaultMaxAge backend = do
   ref <- Ref.new mempty
   let
+    isExpired maxAge now' (_ /\ d) = unInstant now' < unInstant d <> maxAge
+
+    pruneCache = do
+      case defaultMaxAge of
+        Nothing -> pure unit
+        Just maxAge -> do
+          now' <- now
+          void $ Ref.modify (Map.filter (not isExpired maxAge now')) ref
+          void
+            $ window
+            >>= requestIdleCallback
+                { timeout: ceil $ un Milliseconds maxAge
+                }
+                pruneCache
+
     tryFromCache itemMaxAge k = do
       rMaybe <- Map.lookup k <$> Ref.read ref
       case rMaybe of
         Nothing -> pure Nothing
-        Just (r /\ d) -> do
+        Just v@(r /\ d) -> do
           case itemMaxAge <|> defaultMaxAge of
             Nothing -> pure (Just r)
             Just maxAge -> do
               now' <- now
-              if unInstant now' < unInstant d <> maxAge then
-                pure (Just r)
-              else
+              if isExpired maxAge now' v then do
+                _ <- Ref.modify (Map.delete k) ref
                 pure Nothing
+              else
+                pure (Just r)
 
     getCacheOrBackend itemMaxAge k = do
       c <- tryFromCache itemMaxAge k
@@ -80,22 +102,25 @@ mkSuspenseStore defaultMaxAge backend = do
           d <- now
           _ <- ref # Ref.modify (Map.insert k (v /\ d))
           pure v
+  do
+    r <- try pruneCache
+    case r of
+      Left _ -> warn "Failed to initialize the suspense store cleanup task. Ensure you're using it in a browser with `requestIdleCallback` support."
+      Right _ -> pure unit
   pure
     $ SuspenseStore
         { cache: ref
-        , get: \k -> Suspended do getCacheOrBackend Nothing k
-        , get': \d k -> Suspended do getCacheOrBackend (Just d) k
+        , get: map Suspended <<< getCacheOrBackend
         }
 
 newtype SuspenseStore k v
   = SuspenseStore
   { cache :: Ref (Map k (SuspenseResult v /\ Instant))
-  , get :: k -> Suspended v
-  , get' :: Milliseconds -> k -> Suspended v
+  , get :: Maybe Milliseconds -> k -> Suspended v
   }
 
 get :: forall k v. SuspenseStore k v -> k -> Suspended v
-get (SuspenseStore s) = s.get
+get (SuspenseStore s) = s.get Nothing
 
 get' :: forall k v. SuspenseStore k v -> Milliseconds -> k -> Suspended v
-get' (SuspenseStore s) = s.get'
+get' (SuspenseStore s) d = s.get (Just d)
