@@ -7,7 +7,7 @@ module React.Basic.Hooks
   , ReactChildren
   , memo
   , useState
-  , useStateConst
+  , useState'
   , UseState
   , useEffect
   , useEffectOnce
@@ -167,11 +167,11 @@ useState initialState =
   unsafeHook do
     runEffectFn2 useState_ (mkFn2 Tuple) initialState
 
-useStateConst ::
+useState' ::
   forall state.
   state ->
   Hook (UseState state) (state /\ (state -> Effect Unit))
-useStateConst initialState =
+useState' initialState =
   useState initialState <#> rmap (_ <<< const)
 
 foreign import data UseState :: Type -> Type -> Type
