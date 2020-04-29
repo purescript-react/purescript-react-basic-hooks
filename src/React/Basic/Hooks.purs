@@ -7,6 +7,7 @@ module React.Basic.Hooks
   , ReactChildren
   , memo
   , useState
+  , useState'
   , UseState
   , useEffect
   , useEffectOnce
@@ -39,6 +40,7 @@ module React.Basic.Hooks
   ) where
 
 import Prelude hiding (bind, discard)
+import Data.Bifunctor (rmap)
 import Data.Function.Uncurried (Fn2, mkFn2)
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
@@ -164,6 +166,13 @@ useState ::
 useState initialState =
   unsafeHook do
     runEffectFn2 useState_ (mkFn2 Tuple) initialState
+
+useState' ::
+  forall state.
+  state ->
+  Hook (UseState state) (state /\ (state -> Effect Unit))
+useState' initialState =
+  useState initialState <#> rmap (_ <<< const)
 
 foreign import data UseState :: Type -> Type -> Type
 
