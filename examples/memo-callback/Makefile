@@ -11,7 +11,7 @@ output: node_modules
 		  $(parent_sources)
 
 node_modules:
-	npm i --no-save browserify react react-dom
+	npm i --no-save purescript spago browserify react react-dom
 
 clean:
 	rm -rf node_modules output
