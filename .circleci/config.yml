@@ -1,8 +1,8 @@
-version: 2
+version: 2.1
 jobs:
   build:
     docker:
-      - image: node:10
+      - image: node:12
 
     steps:
       - checkout
