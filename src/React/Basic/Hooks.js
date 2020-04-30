@@ -79,6 +79,8 @@ exports.useLazy_ = function (eq, deps, computeA) {
   return React.useMemo(computeA, [memoizedKey]);
 };
 
+exports.useDebugValue_ = React.useDebugValue;
+
 exports.unsafeSetDisplayName = function (displayName, component) {
   component.displayName = displayName;
   component.toString = function () {
