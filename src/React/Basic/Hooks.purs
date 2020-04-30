@@ -32,6 +32,8 @@ module React.Basic.Hooks
   , UseMemo
   , useLazy
   , UseLazy
+  , useDebugValue
+  , UseDebugValue
   , UnsafeReference(..)
   , displayName
   , module React.Basic.Hooks.Internal
@@ -171,8 +173,7 @@ useState' ::
   forall state.
   state ->
   Hook (UseState state) (state /\ (state -> Effect Unit))
-useState' initialState =
-  useState initialState <#> rmap (_ <<< const)
+useState' initialState = useState initialState <#> rmap (_ <<< const)
 
 foreign import data UseState :: Type -> Type -> Type
 
@@ -285,6 +286,15 @@ useLazy deps computeA = unsafeHook (runEffectFn3 useLazy_ (mkFn2 eq) deps comput
 
 foreign import data UseLazy :: Type -> Type -> Type -> Type
 
+-- | Use this hook to display a label for custom hooks in React DevTools
+useDebugValue :: forall a. a -> (a -> String) -> Hook (UseDebugValue a) Unit
+useDebugValue debugValue display = unsafeHook (runEffectFn2 useDebugValue_ debugValue display)
+
+useDebugValue' :: forall a. Show a => a -> Hook (UseDebugValue a) Unit
+useDebugValue' debugValue = useDebugValue debugValue show
+
+foreign import data UseDebugValue :: Type -> Type -> Type
+
 newtype UnsafeReference a
   = UnsafeReference a
 
@@ -395,3 +405,10 @@ foreign import useLazy_ ::
     deps
     (Unit -> a)
     a
+
+foreign import useDebugValue_ ::
+  forall a.
+  EffectFn2
+    a
+    (a -> String)
+    Unit
