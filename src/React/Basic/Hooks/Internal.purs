@@ -106,9 +106,9 @@ coerceHook (Render a) = Render a
 -- |   ...
 -- | ```
 -- |
--- | The same applies to keys as they use `Eq` and a reorder
--- | would allow React to pass incorrect types into the `eq`
--- | function!
+-- | The same applies to `deps` in these examples as they use
+-- | `Eq` and a reorder would allow React to pass incorrect
+-- | types into the `eq` function!
 unsafeHook ::
   forall newHook a.
   Effect a -> Hook newHook a

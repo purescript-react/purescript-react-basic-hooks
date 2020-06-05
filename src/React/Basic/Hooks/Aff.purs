@@ -10,12 +10,14 @@ module React.Basic.Hooks.Aff
 import Prelude
 import Data.Either (Either(..))
 import Data.Foldable (for_)
+import Data.Function.Uncurried (Fn2, mkFn2, runFn2)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Effect (Effect)
 import Effect.Aff (Aff, Error, error, killFiber, launchAff, launchAff_, throwError, try)
 import Effect.Class (liftEffect)
-import React.Basic.Hooks (type (/\), Hook, UnsafeReference(..), UseEffect, UseReducer, UseState, coerceHook, unsafeRenderEffect, useEffect, useReducer, useState, (/\))
+import Effect.Unsafe (unsafePerformEffect)
+import React.Basic.Hooks (type (/\), Hook, Reducer, UnsafeReference(..), UseEffect, UseMemo, UseReducer, UseState, coerceHook, mkReducer, unsafeRenderEffect, useEffect, useMemo, useReducer, useState, (/\))
 import React.Basic.Hooks as React
 
 -- | `useAff` is used for asynchronous effects or `Aff`. The asynchronous effect
@@ -44,7 +46,7 @@ useAff deps aff =
             setResult \_ -> Just r
       pure do
         launchAff_ do
-          killFiber (error "Fiber cancelled for newer request") fiber
+          killFiber (error "Stale request cancelled") fiber
     unsafeRenderEffect case result of
       Just (Left err) -> throwError err
       Just (Right a) -> pure (Just a)
@@ -78,10 +80,14 @@ useAffReducer ::
   state ->
   AffReducer state action ->
   Hook (UseAffReducer state action) (state /\ (action -> Effect Unit))
-useAffReducer initialState reducer =
+useAffReducer initialState affReducer =
   coerceHook React.do
+    reducer' <-
+      useMemo (UnsafeReference affReducer) \_ ->
+        unsafePerformEffect do
+          mkReducer (\{ state } -> runAffReducer affReducer state)
     { state, effects } /\ dispatch <-
-      useReducer { state: initialState, effects: [] } (_.state >>> reducer)
+      useReducer { state: initialState, effects: [] } reducer'
     useEffect (UnsafeReference effects) do
       for_ effects \aff ->
         launchAff_ do
@@ -90,12 +96,30 @@ useAffReducer initialState reducer =
       mempty
     pure (state /\ dispatch)
 
-type AffReducer state action
-  = state ->
-    action ->
-    { state :: state
-    , effects :: Array (Aff (Array action))
-    }
+newtype AffReducer state action
+  = AffReducer
+  ( Fn2
+      state
+      action
+      { state :: state, effects :: Array (Aff (Array action)) }
+  )
+
+mkAffReducer ::
+  forall state action.
+  (state -> action -> { state :: state, effects :: Array (Aff (Array action)) }) ->
+  Effect (AffReducer state action)
+mkAffReducer = pure <<< AffReducer <<< mkFn2
+
+-- | Run a wrapped `Reducer` function as a normal function (like `runFn2`).
+-- | Useful for testing, simulating actions, or building more complicated
+-- | hooks on top of `useReducer`
+runAffReducer ::
+  forall state action.
+  AffReducer state action ->
+  state ->
+  action ->
+  { state :: state, effects :: Array (Aff (Array action)) }
+runAffReducer (AffReducer reducer) = runFn2 reducer
 
 noEffects ::
   forall state action.
@@ -108,7 +132,18 @@ noEffects state = { state, effects: [] }
 newtype UseAffReducer state action hooks
   = UseAffReducer
   ( UseEffect (UnsafeReference (Array (Aff (Array action))))
-      (UseReducer { state :: state, effects :: Array (Aff (Array action)) } action hooks)
+      ( UseReducer { state :: state, effects :: Array (Aff (Array action)) } action
+          ( UseMemo
+              (UnsafeReference (AffReducer state action))
+              ( Reducer
+                  { effects :: Array (Aff (Array action))
+                  , state :: state
+                  }
+                  action
+              )
+              hooks
+          )
+      )
   )
 
 derive instance ntUseAffReducer :: Newtype (UseAffReducer state action hooks) _

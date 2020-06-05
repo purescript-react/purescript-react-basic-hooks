@@ -5,6 +5,8 @@ module React.Basic.Hooks
   , reactComponentWithChildren
   , reactComponentFromHook
   , ReactChildren
+  , reactChildrenToArray
+  , reactChildrenFromArray
   , memo
   , useState
   , useState'
@@ -17,21 +19,22 @@ module React.Basic.Hooks
   , useLayoutEffectOnce
   , useLayoutEffectAlways
   , UseLayoutEffect
+  , Reducer
+  , mkReducer
+  , runReducer
   , useReducer
   , UseReducer
   , readRef
   , readRefMaybe
   , writeRef
-  , reactChildrenFromArray
-  , reactChildrenToArray
   , useRef
   , UseRef
   , useContext
   , UseContext
+  , useEqCache
+  , UseEqCache
   , useMemo
   , UseMemo
-  , useLazy
-  , UseLazy
   , useDebugValue
   , UseDebugValue
   , UnsafeReference(..)
@@ -43,7 +46,7 @@ module React.Basic.Hooks
 
 import Prelude hiding (bind, discard)
 import Data.Bifunctor (rmap)
-import Data.Function.Uncurried (Fn2, mkFn2)
+import Data.Function.Uncurried (Fn2, mkFn2, runFn2)
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import Data.Nullable (Nullable, toMaybe)
@@ -153,8 +156,8 @@ reactChildrenFromArray :: forall a. Array a -> ReactChildren a
 reactChildrenFromArray = unsafeCoerce
 
 -- | Prevents a component from re-rendering if its new props are referentially
--- | equal to its old props (not value-based equality -- this is due to the underlying
--- | React implementation).
+-- | equal to its old props (not value-based equality -- this is due to the
+-- | underlying React implementation).
 memo ::
   forall props.
   Effect (ReactComponent props) ->
@@ -187,7 +190,9 @@ useEffect ::
   deps ->
   Effect (Effect Unit) ->
   Hook (UseEffect deps) Unit
-useEffect deps effect = unsafeHook (runEffectFn3 useEffect_ (mkFn2 eq) deps effect)
+useEffect deps effect =
+  unsafeHook do
+    runEffectFn3 useEffect_ (mkFn2 eq) deps effect
 
 -- | Like `useEffect`, but the effect is only performed a single time per component
 -- | instance. Prefer `useEffect` with a proper dependency list whenever possible!
@@ -209,7 +214,7 @@ useLayoutEffect ::
   deps ->
   Effect (Effect Unit) ->
   Hook (UseLayoutEffect deps) Unit
-useLayoutEffect keys effect = unsafeHook (runEffectFn3 useLayoutEffect_ (mkFn2 eq) keys effect)
+useLayoutEffect deps effect = unsafeHook (runEffectFn3 useLayoutEffect_ (mkFn2 eq) deps effect)
 
 -- | Like `useLayoutEffect`, but the effect is only performed a single time per component
 -- | instance. Prefer `useLayoutEffect` with a proper dependency list whenever possible!
@@ -223,16 +228,32 @@ useLayoutEffectAlways effect = unsafeHook (runEffectFn1 useLayoutEffectAlways_ e
 
 foreign import data UseLayoutEffect :: Type -> Type -> Type
 
+newtype Reducer state action
+  = Reducer (Fn2 state action state)
+
+-- | Creating reducer functions for React is effectful because
+-- | React uses the function instance's reference to optimise
+-- | rendering behavior.
+mkReducer :: forall state action. (state -> action -> state) -> Effect (Reducer state action)
+mkReducer = pure <<< Reducer <<< mkFn2
+
+-- | Run a wrapped `Reducer` function as a normal function (like `runFn2`).
+-- | Useful for testing, simulating actions, or building more complicated
+-- | hooks on top of `useReducer`
+runReducer :: forall state action. Reducer state action -> state -> action -> state
+runReducer (Reducer reducer) = runFn2 reducer
+
+-- | Use `mkReducer` to construct a reducer function.
 useReducer ::
   forall state action.
   state ->
-  (state -> action -> state) ->
+  Reducer state action ->
   Hook (UseReducer state action) (state /\ (action -> Effect Unit))
-useReducer initialState reducer =
+useReducer initialState (Reducer reducer) =
   unsafeHook do
     runEffectFn3 useReducer_
       (mkFn2 Tuple)
-      (mkFn2 reducer)
+      reducer
       initialState
 
 foreign import data UseReducer :: Type -> Type -> Type -> Type
@@ -258,33 +279,34 @@ useContext context = unsafeHook (runEffectFn1 useContext_ context)
 
 foreign import data UseContext :: Type -> Type -> Type
 
--- | Use this hook to memoize a value based on a set of deps. This is
--- | useful when you need to take advantage of `memo` and need to pass
--- | referentially equal values to a child component. This is purely
--- | a performance optimization and shouldn't change the behavior of
--- | your component.
+-- | Cache an instance of a value, replacing it when `eq` returns `false`.
 -- |
--- | If building a value of `a` is expensive, try `useLazy`.
-useMemo ::
+-- | This is a low-level performance optimization tool. It can be useful
+-- | for optimizing a component's props for use with `memo`, where
+-- | JavaScript instance equality matters.
+useEqCache ::
   forall a.
   Eq a =>
   a ->
-  Hook (UseMemo a) a
-useMemo a = unsafeHook (runEffectFn2 useMemo_ (mkFn2 eq) a)
+  Hook (UseEqCache a) a
+useEqCache a =
+  unsafeHook do
+    runEffectFn2 useEqCache_ (mkFn2 eq) a
 
-foreign import data UseMemo :: Type -> Type -> Type
+foreign import data UseEqCache :: Type -> Type -> Type
 
--- | Lazily compute a value. The result is cached in the component
--- | instance until the deps change.
-useLazy ::
+-- | Lazily compute a value. The result is cached until the `deps` change.
+useMemo ::
   forall deps a.
   Eq deps =>
   deps ->
   (Unit -> a) ->
-  Hook (UseLazy deps a) a
-useLazy deps computeA = unsafeHook (runEffectFn3 useLazy_ (mkFn2 eq) deps computeA)
+  Hook (UseMemo deps a) a
+useMemo deps computeA =
+  unsafeHook do
+    runEffectFn3 useMemo_ (mkFn2 eq) deps computeA
 
-foreign import data UseLazy :: Type -> Type -> Type -> Type
+foreign import data UseMemo :: Type -> Type -> Type -> Type
 
 -- | Use this hook to display a label for custom hooks in React DevTools
 useDebugValue :: forall a. a -> (a -> String) -> Hook (UseDebugValue a) Unit
@@ -391,14 +413,14 @@ foreign import useContext_ ::
     (ReactContext a)
     a
 
-foreign import useMemo_ ::
+foreign import useEqCache_ ::
   forall a.
   EffectFn2
     (Fn2 a a Boolean)
     a
     a
 
-foreign import useLazy_ ::
+foreign import useMemo_ ::
   forall deps a.
   EffectFn3
     (Fn2 deps deps Boolean)
