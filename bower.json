@@ -13,13 +13,20 @@
   },
   "dependencies": {
     "purescript-prelude": "^4.1.0",
-    "purescript-console": "^4.2.0",
-    "purescript-effect": "^2.0.0",
-    "purescript-react-basic": "^10.0.0 || ^11.0.0 || ^12.0.0 || ^13.0.0",
-    "purescript-indexed-monad": "^1.0.0",
+    "purescript-effect": "^2.0.1",
+    "purescript-aff": "^5.1.2",
+    "purescript-newtype": "^3.0.0",
+    "purescript-maybe": "^4.0.1",
+    "purescript-numbers": "^7.0.0",
+    "purescript-either": "^4.1.1",
+    "purescript-type-equality": "^3.0.0",
+    "purescript-datetime": "^4.1.1",
+    "purescript-web-html": "^2.3.0",
+    "purescript-aff-promise": "^2.1.0",
     "purescript-unsafe-reference": "^3.0.1",
-    "purescript-aff": "^5.1.1",
-    "purescript-aff-promise": "^2.1.0"
+    "purescript-indexed-monad": "^1.2.0",
+    "purescript-react-basic": "^15.0.0",
+    "purescript-unsafe-coerce": "^4.0.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^4.0.0"

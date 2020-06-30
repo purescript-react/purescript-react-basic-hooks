@@ -1,8 +1,0 @@
-{
-  "public": "examples",
-  "rewrites": [
-    { "source": "/:ex", "destination": "/:ex/html/index.html" },
-    { "source": "/:ex/index.js", "destination": "/:ex/html/index.js" }
-  ],
-  "unlisted": ["README.md"]
-}

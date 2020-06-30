@@ -1,0 +1,15 @@
+dist: trusty
+sudo: required
+language: node_js
+node_js:
+  - node
+  - "lts/*"
+
+cache: npm
+
+install:
+  - npm ci
+  - npx bower i
+
+script:
+  - npx pulp build
