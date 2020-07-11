@@ -3,6 +3,8 @@ module React.Basic.Hooks.Aff
   , UseAff
   , useAffReducer
   , AffReducer
+  , mkAffReducer
+  , runAffReducer
   , noEffects
   , UseAffReducer
   ) where
