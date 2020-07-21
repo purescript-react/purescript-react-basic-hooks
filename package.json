@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "`react-basic-hooks` is a React hook API for [react-basic](https://github.com/lumihq/purescript-react-basic)!",
   "main": "index.js",
-  "directories": {
-    "example": "examples"
-  },
   "dependencies": {
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
@@ -23,8 +20,8 @@
     "url": "git+https://github.com/spicydonuts/purescript-react-basic-hooks.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Madeline Trotter",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/spicydonuts/purescript-react-basic-hooks/issues"
   },
