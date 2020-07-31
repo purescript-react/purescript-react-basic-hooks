@@ -2,6 +2,14 @@
 
 const React = require("react");
 
+const useEqCache = (eq, a) => {
+  const memoRef = React.useRef(a);
+  if (memoRef.current !== a && !eq(memoRef.current, a)) {
+    memoRef.current = a;
+  }
+  return memoRef.current;
+};
+
 exports.reactChildrenToArray = (children) => React.Children.toArray(children);
 
 exports.memo_ = React.memo;
@@ -18,14 +26,14 @@ exports.useState_ = (tuple, initialState) => {
 };
 
 exports.useEffect_ = (eq, deps, effect) => {
-  const memoizedKey = exports.useEqCache_(eq, deps);
+  const memoizedKey = useEqCache(eq, deps);
   React.useEffect(effect, [memoizedKey]);
 };
 
 exports.useEffectAlways_ = (effect) => React.useEffect(effect);
 
 exports.useLayoutEffect_ = (eq, deps, effect) => {
-  const memoizedKey = exports.useEqCache_(eq, deps);
+  const memoizedKey = useEqCache(eq, deps);
   React.useLayoutEffect(effect, [memoizedKey]);
 };
 
@@ -52,16 +60,10 @@ exports.writeRef_ = (ref, a) => {
 
 exports.useContext_ = React.useContext;
 
-exports.useEqCache_ = function (eq, a) {
-  const memoRef = React.useRef(a);
-  if (memoRef.current !== a && !eq(memoRef.current, a)) {
-    memoRef.current = a;
-  }
-  return memoRef.current;
-};
+exports.useEqCache_ = useEqCache;
 
 exports.useMemo_ = (eq, deps, computeA) => {
-  const memoizedKey = exports.useEqCache_(eq, deps);
+  const memoizedKey = useEqCache(eq, deps);
   return React.useMemo(computeA, [memoizedKey]);
 };
 
