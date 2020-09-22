@@ -1,6 +1,6 @@
 # react-basic-hooks [![Build Status](https://travis-ci.com/spicydonuts/purescript-react-basic-hooks.svg?branch=main)](https://travis-ci.com/spicydonuts/purescript-react-basic-hooks)
 
-`react-basic-hooks` is a React hook API for [react-basic](https://github.com/lumihq/purescript-react-basic). For more info and guides, see the React Basic [docs](https://react-basic-starter.github.io/)! (work in progress)
+`react-basic-hooks` is a React hook API for [react-basic](https://github.com/lumihq/purescript-react-basic).
 
 _Note:_ This API relies on React `>=16.8.0`. For more info on hooks, see [React's documentation](https://reactjs.org/docs/hooks-intro.html).
 
