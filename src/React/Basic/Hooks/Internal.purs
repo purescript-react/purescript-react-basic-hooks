@@ -13,6 +13,7 @@ import Prelude hiding (bind)
 import Control.Applicative.Indexed (class IxApplicative)
 import Control.Apply.Indexed (class IxApply)
 import Control.Bind.Indexed (class IxBind, ibind)
+import Control.Monad.Indexed (class IxMonad)
 import Data.Functor.Indexed (class IxFunctor)
 import Data.Newtype (class Newtype)
 import Effect (Effect)
@@ -148,6 +149,8 @@ instance ixApplicativeRender :: IxApplicative Render where
 instance ixBindRender :: IxBind Render where
   ibind (Render m) f = Render (Prelude.bind m \a -> case f a of Render b -> b)
 
+instance ixMonadRender :: IxMonad Render
+
 -- | Exported for use with qualified-do syntax
 bind :: forall a b x y z m. IxBind m => m x y a -> (a -> m y z b) -> m x z b
 bind = ibind
@@ -167,6 +170,8 @@ instance applicativeRender :: TypeEquals x y => Applicative (Render x y) where
 
 instance bindRender :: TypeEquals x y => Bind (Render x y) where
   bind (Render m) f = Render (Prelude.bind m \a -> case f a of Render b -> b)
+
+instance monadRender :: TypeEquals x y => Monad (Render x y)
 
 instance semigroupRender :: (TypeEquals x y, Semigroup a) => Semigroup (Render x y a) where
   append (Render a) (Render b) = Render (append a b)
