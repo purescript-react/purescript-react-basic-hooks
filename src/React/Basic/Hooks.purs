@@ -183,7 +183,22 @@ foreign import data UseState :: Type -> Type -> Type
 -- | Runs the given effect when the component is mounted and any time the given
 -- | dependencies change. The effect should return its cleanup function. For
 -- | example, if the effect registers a global event listener, it should return
--- | and Effect which removes the listener.
+-- | an Effect which removes the listener.
+-- |
+-- | ```purs
+-- | useEffect deps do
+-- |   timeoutId <- setTimeout 1000 (logShow deps)
+-- |   pure (clearTimeout timeoutId)
+-- | ```
+-- | 
+-- | If no cleanup is needed, use `pure (pure unit)` or `pure mempty` to return
+-- | a no-op Effect
+-- |
+-- | ```purs
+-- | useEffect deps do
+-- |   logShow deps
+-- |   pure mempty
+-- | ```
 useEffect ::
   forall deps.
   Eq deps =>
