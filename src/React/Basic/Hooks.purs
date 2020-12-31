@@ -221,8 +221,10 @@ useEffectAlways effect = unsafeHook (runEffectFn1 useEffectAlways_ effect)
 
 foreign import data UseEffect :: Type -> Type -> Type
 
--- | Like `useEffect`, but the effect is performed on every render. Prefer `useEffect`
--- | with a proper dependency list whenever possible!
+-- | Like `useEffect`, but the effect is performed synchronously after the browser has
+-- | calculated layout. Useful for reading properties from the DOM that are not available
+-- | before layout, such as element sizes and positions. Prefer `useEffect` whenever
+-- | possible to avoid blocking browser painting.
 useLayoutEffect ::
   forall deps.
   Eq deps =>
