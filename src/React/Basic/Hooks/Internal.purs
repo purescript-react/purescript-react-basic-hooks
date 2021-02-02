@@ -7,9 +7,12 @@ module React.Basic.Hooks.Internal
   , Hook
   , bind
   , discard
+  , HookApply
+  , type (&)
   ) where
 
 import Prelude hiding (bind)
+
 import Control.Applicative.Indexed (class IxApplicative)
 import Control.Apply.Indexed (class IxApply)
 import Control.Bind.Indexed (class IxBind, ibind)
@@ -178,3 +181,15 @@ instance semigroupRender :: (TypeEquals x y, Semigroup a) => Semigroup (Render x
 
 instance monoidRender :: (TypeEquals x y, Monoid a) => Monoid (Render x y a) where
   mempty = Render mempty
+
+type HookApply hooks (newHook :: Type -> Type)
+  = newHook hooks
+
+-- | Applies a new hook to a hook chain, with the innermost hook as the left argument.
+-- | This allows hook chains to be written in reverse order, aligning them with the
+-- | order they appear when actually used in do-notation.
+-- | ```purescript
+-- | type UseCustomHook hooks = UseEffect String (UseState Int hooks)
+-- | type UseCustomHook' = UseState Int & UseEffect String
+-- | ```
+infixl 0 type HookApply as &

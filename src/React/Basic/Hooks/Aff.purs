@@ -10,6 +10,7 @@ module React.Basic.Hooks.Aff
   ) where
 
 import Prelude
+
 import Data.Either (Either(..))
 import Data.Foldable (for_)
 import Data.Function.Uncurried (Fn2, mkFn2, runFn2)
@@ -19,7 +20,7 @@ import Effect (Effect)
 import Effect.Aff (Aff, Error, error, killFiber, launchAff, launchAff_, throwError, try)
 import Effect.Class (liftEffect)
 import Effect.Unsafe (unsafePerformEffect)
-import React.Basic.Hooks (type (/\), Hook, Reducer, UnsafeReference(..), UseEffect, UseMemo, UseReducer, UseState, coerceHook, mkReducer, unsafeRenderEffect, useEffect, useMemo, useReducer, useState, (/\))
+import React.Basic.Hooks (type (&), type (/\), Hook, Reducer, UnsafeReference(..), UseEffect, UseMemo, UseReducer, UseState, coerceHook, mkReducer, unsafeRenderEffect, useEffect, useMemo, useReducer, useState, (/\))
 import React.Basic.Hooks as React
 
 -- | `useAff` is used for asynchronous effects or `Aff`. The asynchronous effect
@@ -55,7 +56,11 @@ useAff deps aff =
       Nothing -> pure Nothing
 
 newtype UseAff deps a hooks
-  = UseAff (UseEffect deps (UseState (Maybe (Either Error a)) hooks))
+  = UseAff
+      ( hooks
+      & UseState (Maybe (Either Error a))
+      & UseEffect deps
+      )
 
 derive instance ntUseAff :: Newtype (UseAff deps a hooks) _
 
@@ -98,6 +103,22 @@ useAffReducer initialState affReducer =
       mempty
     pure (state /\ dispatch)
 
+newtype UseAffReducer state action hooks
+  = UseAffReducer
+      ( hooks
+      & UseMemo (UnsafeReference (AffReducer state action))
+          ( Reducer
+              { effects :: Array (Aff (Array action))
+              , state :: state
+              }
+              action
+          )
+      & UseReducer { state :: state, effects :: Array (Aff (Array action)) } action
+      & UseEffect (UnsafeReference (Array (Aff (Array action))))
+      )
+
+derive instance ntUseAffReducer :: Newtype (UseAffReducer state action hooks) _
+
 newtype AffReducer state action
   = AffReducer
   ( Fn2
@@ -130,22 +151,3 @@ noEffects ::
   , effects :: Array (Aff (Array action))
   }
 noEffects state = { state, effects: [] }
-
-newtype UseAffReducer state action hooks
-  = UseAffReducer
-  ( UseEffect (UnsafeReference (Array (Aff (Array action))))
-      ( UseReducer { state :: state, effects :: Array (Aff (Array action)) } action
-          ( UseMemo
-              (UnsafeReference (AffReducer state action))
-              ( Reducer
-                  { effects :: Array (Aff (Array action))
-                  , state :: state
-                  }
-                  action
-              )
-              hooks
-          )
-      )
-  )
-
-derive instance ntUseAffReducer :: Newtype (UseAffReducer state action hooks) _
