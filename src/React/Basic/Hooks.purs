@@ -57,7 +57,7 @@ import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, mkEffectFn1, runEffect
 import Prelude (bind) as Prelude
 import Prim.Row (class Lacks)
 import React.Basic (JSX, ReactComponent, ReactContext, Ref, consumer, contextConsumer, contextProvider, createContext, element, elementKeyed, empty, keyed, fragment, provider)
-import React.Basic.Hooks.Internal (Hook, Pure, Render, bind, discard, coerceHook, unsafeHook, unsafeRenderEffect)
+import React.Basic.Hooks.Internal (Hook, HookApply, Pure, Render, bind, discard, coerceHook, unsafeHook, unsafeRenderEffect, type (&))
 import Unsafe.Coerce (unsafeCoerce)
 import Unsafe.Reference (unsafeRefEq)
 
@@ -190,7 +190,7 @@ foreign import data UseState :: Type -> Type -> Type
 -- |   timeoutId <- setTimeout 1000 (logShow deps)
 -- |   pure (clearTimeout timeoutId)
 -- | ```
--- | 
+-- |
 -- | If no cleanup is needed, use `pure (pure unit)` or `pure mempty` to return
 -- | a no-op Effect
 -- |

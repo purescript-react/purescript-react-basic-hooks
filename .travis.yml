@@ -9,7 +9,7 @@ cache: npm
 
 install:
   - npm ci
-  - npx bower i
+  - npx spago install
 
 script:
-  - npx pulp build
+  - npx spago build

@@ -4,13 +4,12 @@
   "description": "`react-basic-hooks` is a React hook API for [react-basic](https://github.com/lumihq/purescript-react-basic)!",
   "main": "index.js",
   "dependencies": {
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
   },
   "devDependencies": {
-    "bower": "^1.8.8",
-    "pulp": "^15.0.0",
-    "purescript": "^0.13.8"
+    "purescript": "^0.13.8",
+    "spago": "^0.19.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

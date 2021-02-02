@@ -5,42 +5,36 @@ module React.Basic.Hooks.ResetToken
   ) where
 
 import Prelude
+
 import Data.Newtype (class Newtype)
 import Effect (Effect)
-import React.Basic.Hooks (type (/\), Hook, UseState, coerceHook, unsafeRenderEffect, useState, (/\))
+import React.Basic.Hooks (type (/\), Hook, UseState, coerceHook, useState, (/\))
 import React.Basic.Hooks as React
-import Unsafe.Coerce (unsafeCoerce)
-import Unsafe.Reference (unsafeRefEq)
 
 -- | Useful for resetting effects or component state. A `ResetToken` can be
 -- | used alongside other hook dependencies to force a reevaluation of
 -- | whatever depends on those dependencies.
 -- |
--- | For example, an effect or API call which depends on the state of a
--- | search bar with filters. You may want a button in the UI either for UX
--- | reasons or to refresh possibly stale data. In this case you would
--- | include a `ResetToken` in your search effect/aff's dependencies and
--- | call run `useResetToken`'s reset effect in the button's `onClick`.
+-- | For example, consider an effect or API call which depends on the state
+-- | of a search bar. You may want a button in the UI to refresh stale data.
+-- | In this case you would include a `ResetToken` in your search effect/aff's
+-- | dependencies and call `useResetToken`'s reset effect in the button's
+-- | `onClick` handler.
 useResetToken :: Hook UseResetToken (ResetToken /\ (Effect Unit))
 useResetToken =
   coerceHook React.do
-    initialResetToken <- unsafeRenderEffect createResetToken
-    resetToken /\ setResetToken <- useState initialResetToken
-    let
-      reset = do
-        resetToken' <- createResetToken
-        setResetToken \_ -> resetToken'
-    pure (resetToken /\ reset)
+    resetToken /\ setResetToken <- useState 0
+    let reset = setResetToken (_ + 1)
+    pure (ResetToken resetToken /\ reset)
 
 newtype UseResetToken hooks
-  = UseResetToken (UseState ResetToken hooks)
+  = UseResetToken (UseState Int hooks)
 
 derive instance ntUseResetToken :: Newtype (UseResetToken hooks) _
 
-foreign import data ResetToken :: Type
+newtype ResetToken = ResetToken Int
 
-instance eqResetToken :: Eq ResetToken where
-  eq = unsafeRefEq
+derive newtype instance eqResetToken :: Eq ResetToken
 
-createResetToken :: Effect ResetToken
-createResetToken = unsafeCoerce \_ -> {}
+instance showResetToken :: Show ResetToken where
+  show (ResetToken token) = "(ResetToken " <> show token <> ")"
