@@ -41,10 +41,14 @@ suspend (Suspended e) = React.do
 newtype Suspended a
   = Suspended (Effect (SuspenseResult a))
 
+derive instance functorSuspended :: Functor Suspended
+
 data SuspenseResult a
   = InProgress (Fiber a)
   | Failed Error
   | Complete a
+
+derive instance functorSuspenseResult :: Functor SuspenseResult
 
 suspense :: { fallback :: JSX, children :: Array JSX } -> JSX
 suspense = element suspense_
