@@ -36,7 +36,7 @@ mkSuspenseStore ::
   (k -> Aff v) ->
   Effect (SuspenseStore k v)
 mkSuspenseStore defaultMaxAge backend = do
-  ref <- Ref.new mempty
+  ref <- Ref.new Map.empty
   let
     isExpired maxAge now' (_ /\ d) = unInstant now' < unInstant d <> maxAge
 
