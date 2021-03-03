@@ -10,7 +10,7 @@ import Control.Alt ((<|>))
 import Data.DateTime.Instant (Instant, unInstant)
 import Data.Either (Either(..))
 import Data.Int (ceil)
-import Data.Map (Map, empty)
+import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
 import Data.Newtype (un)
@@ -36,7 +36,7 @@ mkSuspenseStore ::
   (k -> Aff v) ->
   Effect (SuspenseStore k v)
 mkSuspenseStore defaultMaxAge backend = do
-  ref <- Ref.new empty
+  ref <- Ref.new Map.empty
   let
     isExpired maxAge now' (_ /\ d) = unInstant now' < unInstant d <> maxAge
 
