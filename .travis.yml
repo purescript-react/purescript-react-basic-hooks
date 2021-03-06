@@ -9,7 +9,7 @@ cache: npm
 
 install:
   - npm ci
-  - npx spago install
+  - npm run deps
 
 script:
-  - npx spago build
+  - npm run build
