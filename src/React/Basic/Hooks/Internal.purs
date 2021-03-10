@@ -35,6 +35,7 @@ import Type.Equality (class TypeEquals)
 -- | See
 -- | [purescript-indexed-monad](https://pursuit.purescript.org/packages/purescript-indexed-monad)
 -- | to understand how the order of the stack is enforced at the type level.
+newtype Render :: Type -> Type -> Type -> Type
 newtype Render x y a
   = Render (Effect a)
 
