@@ -313,6 +313,11 @@ useEqCache a =
 foreign import data UseEqCache :: Type -> Type -> Type
 
 -- | Lazily compute a value. The result is cached until the `deps` change.
+-- |
+-- | Use this to prevent a `Hook` component from re-rendering needlessly
+-- | by memoizing the props for the `Hook` component. React will skip re-rendering
+-- | the component only if the new props is equal-by-reference to the old props
+-- | (or primitive and equal-by-value).
 useMemo ::
   forall deps a.
   Eq deps =>
