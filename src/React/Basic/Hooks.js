@@ -15,7 +15,11 @@ exports.reactChildrenToArray = (children) => React.Children.toArray(children);
 exports.memo_ = React.memo;
 
 exports.useState_ = (tuple, initialState) => {
-  const r = React.useState(initialState);
+  const r = React.useState(
+    typeof initialState === 'function'
+      ? (() => initialState)
+      : initialState
+  );
   const state = r[0];
   const setState = r[1];
   if (!setState.hasOwnProperty("$$reactBasicHooks$$cachedSetState")) {

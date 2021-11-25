@@ -1,5 +1,5 @@
 module React.Basic.Hooks.ResetToken
-  ( UseResetToken
+  ( UseResetToken(..)
   , ResetToken
   , useResetToken
   ) where

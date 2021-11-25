@@ -1,12 +1,12 @@
 module React.Basic.Hooks.Aff
   ( useAff
-  , UseAff
+  , UseAff(..)
   , useAffReducer
   , AffReducer
   , mkAffReducer
   , runAffReducer
   , noEffects
-  , UseAffReducer
+  , UseAffReducer(..)
   ) where
 
 import Prelude

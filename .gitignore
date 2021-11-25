@@ -9,3 +9,5 @@
 /.purs*
 /.psa*
 /.vscode/
+/.log/
+/.history

@@ -45,6 +45,7 @@ module React.Basic.Hooks
   ) where
 
 import Prelude hiding (bind, discard)
+
 import Data.Bifunctor (rmap)
 import Data.Function.Uncurried (Fn2, mkFn2, runFn2)
 import Data.Maybe (Maybe)
@@ -148,6 +149,7 @@ unsafeDiscardRenderEffects = unsafeCoerce
 unsafeReactFunctionComponent :: forall props. EffectFn1 props JSX -> ReactComponent props
 unsafeReactFunctionComponent = unsafeCoerce
 
+data ReactChildren :: forall k. k -> Type
 data ReactChildren a
 
 foreign import reactChildrenToArray :: forall a. ReactChildren a -> Array a
@@ -249,7 +251,7 @@ newtype Reducer state action
   = Reducer (Fn2 state action state)
 
 -- | Creating reducer functions for React is effectful because
--- | React uses the function instance's reference to optimise
+-- | React uses the function instance's reference to optimize
 -- | rendering behavior.
 mkReducer :: forall state action. (state -> action -> state) -> Effect (Reducer state action)
 mkReducer = pure <<< Reducer <<< mkFn2
@@ -328,9 +330,6 @@ foreign import data UseMemo :: Type -> Type -> Type -> Type
 -- | Use this hook to display a label for custom hooks in React DevTools
 useDebugValue :: forall a. a -> (a -> String) -> Hook (UseDebugValue a) Unit
 useDebugValue debugValue display = unsafeHook (runEffectFn2 useDebugValue_ debugValue display)
-
-useDebugValue' :: forall a. Show a => a -> Hook (UseDebugValue a) Unit
-useDebugValue' debugValue = useDebugValue debugValue show
 
 foreign import data UseDebugValue :: Type -> Type -> Type
 

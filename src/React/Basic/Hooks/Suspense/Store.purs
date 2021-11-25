@@ -57,7 +57,7 @@ mkSuspenseStore defaultMaxAge backend = do
       rMaybe <- Map.lookup k <$> Ref.read ref
       case rMaybe of
         Nothing -> pure Nothing
-        Just v@(r /\ d) -> do
+        Just v@(r /\ _) -> do
           case itemMaxAge <|> defaultMaxAge of
             Nothing -> pure (Just r)
             Just maxAge -> do
@@ -88,7 +88,7 @@ mkSuspenseStore defaultMaxAge backend = do
                         ( k
                             # Map.alter case _ of
                                 Nothing -> Just (v /\ d)
-                                Just r'@(v' /\ d') ->
+                                Just r'@(_ /\ d') ->
                                   if d > d' then
                                     Just (v /\ d)
                                   else
