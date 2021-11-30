@@ -25,6 +25,7 @@
     "build": "run-s build:*",
     "build:spago": "spago build",
     "build:pulp": "pulp build -o output-pulp",
+    "test": "spago -x spago.test.dhall test",
     "clean": "rm -rf .spago bower_components output output-pulp node_modules .pulp-cache .psci_modules"
   },
   "repository": {
