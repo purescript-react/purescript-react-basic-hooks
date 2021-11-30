@@ -1,4 +1,4 @@
-# react-basic-hooks [![Build Status](https://travis-ci.com/spicydonuts/purescript-react-basic-hooks.svg?branch=main)](https://travis-ci.com/spicydonuts/purescript-react-basic-hooks)
+# react-basic-hooks [![Build Status](https://github.com/spicydonuts/purescript-react-basic-hooks/actions/workflows/node.js.yml/badge.svg)](https://github.com/spicydonuts/purescript-react-basic-hooks/actions/workflows/node.js.yml)
 
 `react-basic-hooks` is a React hook API for [react-basic](https://github.com/lumihq/purescript-react-basic).
 
