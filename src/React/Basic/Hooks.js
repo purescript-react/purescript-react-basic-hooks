@@ -1,6 +1,4 @@
-"use strict";
-
-const React = require("react");
+import React from "react";
 
 const useEqCache = (eq, a) => {
   const memoRef = React.useRef(a);
@@ -10,76 +8,78 @@ const useEqCache = (eq, a) => {
   return memoRef.current;
 };
 
-exports.reactChildrenToArray = (children) => React.Children.toArray(children);
+export function reactChildrenToArray(children) {
+  return React.Children.toArray(children);
+}
 
-exports.memo_ = React.memo;
+export var memo_ = React.memo;
 
-exports.useState_ = (tuple, initialState) => {
-  const r = React.useState(
-    typeof initialState === 'function'
-      ? (() => initialState)
-      : initialState
+export function useState_(tuple, initialState) {
+  const [state, setState] = React.useState(
+    typeof initialState === "function" ? () => initialState : initialState
   );
-  const state = r[0];
-  const setState = r[1];
   if (!setState.hasOwnProperty("$$reactBasicHooks$$cachedSetState")) {
     setState.$$reactBasicHooks$$cachedSetState = (update) => () =>
       setState(update);
   }
   return tuple(state, setState.$$reactBasicHooks$$cachedSetState);
-};
+}
 
-exports.useEffect_ = (eq, deps, effect) => {
+export function useEffect_(eq, deps, effect) {
   const memoizedKey = useEqCache(eq, deps);
   React.useEffect(effect, [memoizedKey]);
-};
+}
 
-exports.useEffectAlways_ = (effect) => React.useEffect(effect);
+export function useEffectAlways_(effect) {
+  return React.useEffect(effect);
+}
 
-exports.useLayoutEffect_ = (eq, deps, effect) => {
+export function useLayoutEffect_(eq, deps, effect) {
   const memoizedKey = useEqCache(eq, deps);
   React.useLayoutEffect(effect, [memoizedKey]);
-};
+}
 
-exports.useLayoutEffectAlways_ = (effect) => React.useLayoutEffect(effect);
+export function useLayoutEffectAlways_(effect) {
+  return React.useLayoutEffect(effect);
+}
 
-exports.useReducer_ = (tuple, reducer, initialState) => {
-  const r = React.useReducer(reducer, initialState);
-  const state = r[0];
-  const dispatch = r[1];
+export function useReducer_(tuple, reducer, initialState) {
+  const [state, dispatch] = React.useReducer(reducer, initialState);
   if (!dispatch.hasOwnProperty("$$reactBasicHooks$$cachedDispatch")) {
     dispatch.$$reactBasicHooks$$cachedDispatch = (action) => () =>
       dispatch(action);
   }
   return tuple(state, dispatch.$$reactBasicHooks$$cachedDispatch);
-};
+}
 
-exports.useRef_ = React.useRef;
+export var useRef_ = React.useRef;
 
-exports.readRef_ = (ref) => ref.current;
+export function readRef_(ref) {
+  return ref.current;
+}
 
-exports.writeRef_ = (ref, a) => {
+export function writeRef_(ref, a) {
   ref.current = a;
-};
+}
 
-exports.useContext_ = React.useContext;
+export var useContext_ = React.useContext;
+export { useEqCache as useEqCache_ };
 
-exports.useEqCache_ = useEqCache;
-
-exports.useMemo_ = (eq, deps, computeA) => {
+export function useMemo_(eq, deps, computeA) {
   const memoizedKey = useEqCache(eq, deps);
   return React.useMemo(computeA, [memoizedKey]);
-};
+}
 
-exports.useDebugValue_ = React.useDebugValue;
+export var useDebugValue_ = React.useDebugValue;
 
-exports.unsafeSetDisplayName = (displayName, component) => {
+export function unsafeSetDisplayName(displayName, component) {
   component.displayName = displayName;
   component.toString = () => displayName;
   return component;
-};
+}
 
-exports.displayName = (component) =>
-  typeof component === "string"
+export function displayName(component) {
+  return typeof component === "string"
     ? component
     : component.displayName || "[unknown]";
+}

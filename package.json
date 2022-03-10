@@ -3,20 +3,20 @@
   "version": "1.0.0",
   "description": "`react-basic-hooks` is a React hook API for [react-basic](https://github.com/lumihq/purescript-react-basic)!",
   "main": "index.js",
+  "module": "true",
   "dependencies": {
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@testing-library/react": "^12.1.2",
+    "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "bower": "^1.8.13",
-    "jsdom": "^18.1.1",
+    "jsdom": "^19.0.0",
     "jsdom-global": "^3.0.2",
     "npm-run-all": "^4.1.5",
     "pulp": "^15.0.0",
-    "purescript": "^0.14.5",
-    "spago": "^0.20.3"
+    "spago": "^0.20.7"
   },
   "scripts": {
     "deps": "run-s deps:*",

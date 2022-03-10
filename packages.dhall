@@ -105,53 +105,53 @@ in  upstream
 -------------------------------
 -}
 let Prelude =
-      https://prelude.dhall-lang.org/package.dhall sha256:0fed19a88330e9a8a3fbe1e8442aa11d12e38da51eb12ba8bcb56f3c25d0854a
+      https://prelude.dhall-lang.org/package.dhall
+        sha256:0fed19a88330e9a8a3fbe1e8442aa11d12e38da51eb12ba8bcb56f3c25d0854a
 
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.14.5-20211116/packages.dhall sha256:7ba810597a275e43c83411d2ab0d4b3c54d0b551436f4b1632e9ff3eb62e327a
+      https://github.com/working-group-purescript-es/package-sets/releases/download/0.1.0/package-set.dhall
+        sha256:642a07499270b2a0425accb35a043b72297bcd957965c2b50f0b34b558c59bc4
 
-in      upstream
-    //  { react-testing-library =
-                upstream.react-testing-library
-            //  { dependencies =
-                    [ "aff"
-                    , "aff-promise"
-                    , "arrays"
-                    , "avar"
-                    , "bifunctors"
-                    , "control"
-                    , "datetime"
-                    , "effect"
-                    , "either"
-                    , "exceptions"
-                    , "foldable-traversable"
-                    , "foreign"
-                    , "foreign-object"
-                    , "functions"
-                    , "identity"
-                    , "integers"
-                    , "lists"
-                    , "maybe"
-                    , "newtype"
-                    , "nullable"
-                    , "partial"
-                    , "prelude"
-                    , "react-basic"
-                    , "react-basic-dom"
-                    -- , "react-basic-hooks" -- remove duplicate dependency for testing
-                    , "record"
-                    , "remotedata"
-                    , "run"
-                    , "spec"
-                    , "strings"
-                    , "transformers"
-                    , "tuples"
-                    , "typelevel-prelude"
-                    , "unsafe-coerce"
-                    , "variant"
-                    , "web-dom"
-                    , "web-events"
-                    , "web-html"
-                    ]
-                }
-        }
+in upstream
+  with aff-promise.repo = "https://github.com/megamaddu/purescript-aff-promise"
+  with aff-promise.version = "purs-0.15-updates"
+
+  with react-testing-library.dependencies =
+    [ "aff"
+    , "aff-promise"
+    , "arrays"
+    , "avar"
+    , "bifunctors"
+    , "control"
+    , "datetime"
+    , "effect"
+    , "either"
+    , "exceptions"
+    , "foldable-traversable"
+    , "foreign"
+    , "foreign-object"
+    , "functions"
+    , "identity"
+    , "integers"
+    , "lists"
+    , "maybe"
+    , "newtype"
+    , "nullable"
+    , "partial"
+    , "prelude"
+    , "react-basic"
+    , "react-basic-dom"
+    , "record"
+    , "remotedata"
+    , "run"
+    , "spec"
+    , "strings"
+    , "transformers"
+    , "tuples"
+    , "typelevel-prelude"
+    , "unsafe-coerce"
+    , "variant"
+    , "web-dom"
+    , "web-events"
+    , "web-html"
+    ]
