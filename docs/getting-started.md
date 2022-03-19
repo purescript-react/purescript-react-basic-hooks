@@ -121,7 +121,7 @@ The first thing you should always do is build your PureScript once, like so.
 npx spago build
 ```
 
-Then you can run Percel in "serve" mode to see it all running in your browser (`ctrl + c` to quit).
+Then you can run Parcel in "serve" mode to see it all running in your browser (`ctrl + c` to quit).
 
 ```sh
 npx parcel serve src/index.html
