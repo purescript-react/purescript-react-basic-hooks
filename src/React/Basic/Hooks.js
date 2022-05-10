@@ -13,6 +13,7 @@ const useEqCache = (eq, a) => {
 exports.reactChildrenToArray = (children) => React.Children.toArray(children);
 
 exports.memo_ = React.memo;
+exports.memoEq_ = React.memo;
 
 exports.useState_ = (tuple, initialState) => {
   const r = React.useState(

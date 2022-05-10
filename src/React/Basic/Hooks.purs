@@ -8,6 +8,7 @@ module React.Basic.Hooks
   , reactChildrenToArray
   , reactChildrenFromArray
   , memo
+  , memo'
   , useState
   , useState'
   , UseState
@@ -165,6 +166,16 @@ memo ::
   Effect (ReactComponent props) ->
   Effect (ReactComponent props)
 memo = flip Prelude.bind (runEffectFn1 memo_)
+
+-- | Similar to `memo` but takes a function to compare previous and new props
+memo' ::
+  forall props.
+  (props -> props -> Boolean) ->
+  Effect (ReactComponent props) ->
+  Effect (ReactComponent props)
+memo' arePropsEqual comp = Prelude.do
+  c <- comp
+  runEffectFn2 memoEq_ c (mkFn2 arePropsEqual)
 
 useState ::
   forall state.
@@ -357,6 +368,13 @@ foreign import memo_ ::
   forall props.
   EffectFn1
     (ReactComponent props)
+    (ReactComponent props)
+
+foreign import memoEq_ ::
+  forall props.
+  EffectFn2
+    (ReactComponent props)
+    (Fn2 props props Boolean)
     (ReactComponent props)
 
 foreign import unsafeSetDisplayName ::
