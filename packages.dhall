@@ -109,49 +109,18 @@ let Prelude =
         sha256:0fed19a88330e9a8a3fbe1e8442aa11d12e38da51eb12ba8bcb56f3c25d0854a
 
 let upstream =
-      https://github.com/working-group-purescript-es/package-sets/releases/download/0.1.0/package-set.dhall
-        sha256:642a07499270b2a0425accb35a043b72297bcd957965c2b50f0b34b558c59bc4
+      https://github.com/purescript/package-sets/releases/download/psc-0.15.0-20220516/packages.dhall
+        sha256:b0bf932de16a10b7d69c6bbbb31ec9ca575237c43a999fa32e59e35eb8c024a1
 
-in upstream
-  with aff-promise.repo = "https://github.com/megamaddu/purescript-aff-promise"
-  with aff-promise.version = "purs-0.15-updates"
-
-  with react-testing-library.dependencies =
-    [ "aff"
-    , "aff-promise"
-    , "arrays"
-    , "avar"
-    , "bifunctors"
-    , "control"
-    , "datetime"
-    , "effect"
-    , "either"
-    , "exceptions"
-    , "foldable-traversable"
-    , "foreign"
-    , "foreign-object"
-    , "functions"
-    , "identity"
-    , "integers"
-    , "lists"
-    , "maybe"
-    , "newtype"
-    , "nullable"
-    , "partial"
-    , "prelude"
-    , "react-basic"
-    , "react-basic-dom"
-    , "record"
-    , "remotedata"
-    , "run"
-    , "spec"
-    , "strings"
-    , "transformers"
-    , "tuples"
-    , "typelevel-prelude"
-    , "unsafe-coerce"
-    , "variant"
-    , "web-dom"
-    , "web-events"
-    , "web-html"
-    ]
+in  upstream
+  with react-basic =
+      { dependencies =
+          [ "effect"
+          , "prelude"
+          , "record"
+          ]
+      , repo =
+          "https://github.com/lumihq/purescript-react-basic.git"
+      , version =
+          "v17.0.0"
+      }
