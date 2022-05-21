@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up PureScript toolchain
-        uses: purescript-contrib/setup-purescript@v2.0.0
+        uses: purescript-contrib/setup-purescript@main
         with:
           purescript: "0.15.0"
       - name: Use Node.js ${{ matrix.node-version }}
