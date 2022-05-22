@@ -12,7 +12,8 @@ export function reactChildrenToArray(children) {
   return React.Children.toArray(children);
 }
 
-export var memo_ = React.memo;
+export const memo_ = React.memo;
+export const memoEq_ = React.memo;
 
 export function useState_(tuple, initialState) {
   const [state, setState] = React.useState(
@@ -52,7 +53,7 @@ export function useReducer_(tuple, reducer, initialState) {
   return tuple(state, dispatch.$$reactBasicHooks$$cachedDispatch);
 }
 
-export var useRef_ = React.useRef;
+export const useRef_ = React.useRef;
 
 export function readRef_(ref) {
   return ref.current;
@@ -62,7 +63,7 @@ export function writeRef_(ref, a) {
   ref.current = a;
 }
 
-export var useContext_ = React.useContext;
+export const useContext_ = React.useContext;
 export { useEqCache as useEqCache_ };
 
 export function useMemo_(eq, deps, computeA) {
@@ -70,7 +71,7 @@ export function useMemo_(eq, deps, computeA) {
   return React.useMemo(computeA, [memoizedKey]);
 }
 
-export var useDebugValue_ = React.useDebugValue;
+export const useDebugValue_ = React.useDebugValue;
 
 export function unsafeSetDisplayName(displayName, component) {
   component.displayName = displayName;
