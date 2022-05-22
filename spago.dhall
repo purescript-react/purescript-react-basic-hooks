@@ -23,7 +23,6 @@ You can edit this file as you like.
   , "nullable"
   , "ordered-collections"
   , "prelude"
-  , "psci-support"
   , "react-basic"
   , "refs"
   , "tuples"

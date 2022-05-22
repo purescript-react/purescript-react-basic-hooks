@@ -3,18 +3,19 @@
 module Test.Discovery (discover) where
 
 import Prelude
+
+import Control.Promise (Promise, toAffE)
 import Data.Traversable (sequence_)
 import Effect (Effect)
-import Effect.Class (class MonadEffect, liftEffect)
+import Effect.Aff (Aff)
+import Effect.Aff.Class (liftAff)
 import Test.Spec (Spec)
 
 foreign import getSpecs ∷
   String ->
-  Effect (Array (Spec Unit))
+  Effect (Promise (Array (Spec Unit)))
 
-discover ∷
-  ∀ m.
-  MonadEffect m =>
-  String ->
-  m (Spec Unit)
-discover pattern = getSpecs pattern >>= (pure <<< sequence_) # liftEffect
+discover ∷ String -> Aff (Spec Unit)
+discover pattern = liftAff do
+  specsPromise <- toAffE $ getSpecs pattern
+  pure $ sequence_ specsPromise
