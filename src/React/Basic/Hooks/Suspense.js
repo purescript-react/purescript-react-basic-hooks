@@ -1,5 +1,3 @@
-"use strict";
+import React from "react";
 
-const React = require("react");
-
-exports.suspense_ = React.Suspense;
+export const suspense_ = React.Suspense;
