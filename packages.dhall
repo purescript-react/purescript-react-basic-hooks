@@ -1,8 +1,8 @@
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.15.0-20220522/packages.dhall
-        sha256:43895efaec7af246b60b59cfbf451cd9d3d84a5327de8c0945e2de5c9fd2fcf2
+      https://github.com/purescript/package-sets/releases/download/psc-0.15.0-20220523/packages.dhall
+        sha256:985f90fa68fd8b43b14c777d6ec2c161c4dd9009563b6f51685a54e4a26bf8ff
 
-in upstream
+in  upstream
   with react-testing-library =
     { dependencies =
       [ "aff"
@@ -27,9 +27,8 @@ in upstream
       ]
     , repo =
         "https://github.com/i-am-the-slime/purescript-react-testing-library"
-    , version = "v4.0.0"
+    , version = "v4.0.1"
     }
-
   with react-basic-dom =
     { dependencies =
       [ "effect"
@@ -45,7 +44,6 @@ in upstream
       , "web-file"
       , "web-html"
       ]
-    , repo =
-        "https://github.com/Zelenya7/purescript-react-basic-dom"
+    , repo = "https://github.com/Zelenya7/purescript-react-basic-dom"
     , version = "purescript-0.15-spago"
     }

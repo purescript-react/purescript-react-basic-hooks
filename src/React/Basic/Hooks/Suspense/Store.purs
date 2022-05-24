@@ -28,7 +28,7 @@ import React.Basic.Hooks.Suspense (Suspended(..), SuspenseResult(..))
 import Web.HTML (window)
 import Web.HTML.Window (requestIdleCallback)
 
--- | Simple key-based cache.
+--| Simple key-based cache.
 mkSuspenseStore ::
   forall k v.
   Ord k =>

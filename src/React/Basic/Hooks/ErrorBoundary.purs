@@ -9,9 +9,9 @@ import Effect (Effect)
 import Effect.Aff (Error)
 import React.Basic.Hooks (JSX, ReactComponent, element)
 
--- | Create a React error boundary with the given name. The resulting
--- | component takes a render callback which exposes the error if one
--- | exists and an effect for dismissing the error.
+--| Create a React error boundary with the given name. The resulting
+--| component takes a render callback which exposes the error if one
+--| exists and an effect for dismissing the error.
 mkErrorBoundary ::
   String ->
   Effect

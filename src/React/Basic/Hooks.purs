@@ -63,15 +63,15 @@ import React.Basic.Hooks.Internal (Hook, HookApply, Pure, Render, bind, discard,
 import Unsafe.Coerce (unsafeCoerce)
 import Unsafe.Reference (unsafeRefEq)
 
--- | A simple type alias to clean up component definitions.
+--| A simple type alias to clean up component definitions.
 type Component props
   = Effect (props -> JSX)
 
--- | Create a component function given a display name and render function.
--- | Creating components is effectful because React uses the function
--- | instance as the component's "identity" or "type". Components should
--- | be created during a bootstrap phase and not within component
--- | lifecycles or render functions.
+--| Create a component function given a display name and render function.
+--| Creating components is effectful because React uses the function
+--| instance as the component's "identity" or "type". Components should
+--| be created during a bootstrap phase and not within component
+--| lifecycles or render functions.
 component ::
   forall hooks props.
   String ->
@@ -81,12 +81,12 @@ component name renderFn = Prelude.do
   c <- reactComponent name (renderFn <<< _.nested)
   pure (element c <<< { nested: _ })
 
--- | Create a React component given a display name and render function.
--- | Creating components is effectful because React uses the function
--- | instance as the component's "identity" or "type". Components should
--- | be created during a bootstrap phase and not within component
--- | lifecycles or render functions. See `componentWithChildren` if
--- | you need to use the `children` prop.
+--| Create a React component given a display name and render function.
+--| Creating components is effectful because React uses the function
+--| instance as the component's "identity" or "type". Components should
+--| be created during a bootstrap phase and not within component
+--| lifecycles or render functions. See `componentWithChildren` if
+--| you need to use the `children` prop.
 reactComponent ::
   forall hooks props.
   Lacks "children" props =>
@@ -97,9 +97,9 @@ reactComponent ::
   Effect (ReactComponent { | props })
 reactComponent = unsafeReactComponent
 
--- | Create a React component given a display name and render function.
--- | This is the same as `component` but allows the use of the `children`
--- | prop.
+--| Create a React component given a display name and render function.
+--| This is the same as `component` but allows the use of the `children`
+--| prop.
 reactComponentWithChildren ::
   forall hooks props children.
   Lacks "key" props =>
@@ -109,11 +109,11 @@ reactComponentWithChildren ::
   Effect (ReactComponent { children :: ReactChildren children | props })
 reactComponentWithChildren = unsafeReactComponent
 
--- | Convert a hook to a render-prop component. The value returned from the
--- | hook will be passed to the `render` prop, a function from that value
--- | to `JSX`.
--- |
--- | This function is useful for consuming a hook within a non-hook component.
+--| Convert a hook to a render-prop component. The value returned from the
+--| hook will be passed to the `render` prop, a function from that value
+--| to `JSX`.
+--|
+--| This function is useful for consuming a hook within a non-hook component.
 reactComponentFromHook ::
   forall hooks props r.
   Lacks "children" props =>
@@ -158,16 +158,26 @@ foreign import reactChildrenToArray :: forall a. ReactChildren a -> Array a
 reactChildrenFromArray :: forall a. Array a -> ReactChildren a
 reactChildrenFromArray = unsafeCoerce
 
--- | Prevents a component from re-rendering if its new props are referentially
--- | equal to its old props (not value-based equality -- this is due to the
--- | underlying React implementation).
+--| Prevents a component from re-rendering if its new props are referentially
+--| equal to its old props (not value-based equality -- this is due to the
+--| underlying React implementation).
+--| Prefer `memo'` for more PureScript-friendldy behavior.
 memo ::
   forall props.
   Effect (ReactComponent props) ->
   Effect (ReactComponent props)
 memo = flip Prelude.bind (runEffectFn1 memo_)
 
--- | Similar to `memo` but takes a function to compare previous and new props
+--| Similar to `memo` but takes a function to compare previous and new props.
+--| For example:
+--|
+--| ```purs
+--| mkMyComponent :: Effect (ReactComponent { id :: Int })
+--| mkMyComponent =
+--|   memo' eq do
+--|     reactComponent "MyComponent" \{ id } -> React.do
+--|       ...
+--| ```
 memo' ::
   forall props.
   (props -> props -> Boolean) ->
@@ -193,25 +203,25 @@ useState' initialState = useState initialState <#> rmap (_ <<< const)
 
 foreign import data UseState :: Type -> Type -> Type
 
--- | Runs the given effect when the component is mounted and any time the given
--- | dependencies change. The effect should return its cleanup function. For
--- | example, if the effect registers a global event listener, it should return
--- | an Effect which removes the listener.
--- |
--- | ```purs
--- | useEffect deps do
--- |   timeoutId <- setTimeout 1000 (logShow deps)
--- |   pure (clearTimeout timeoutId)
--- | ```
--- |
--- | If no cleanup is needed, use `pure (pure unit)` or `pure mempty` to return
--- | a no-op Effect
--- |
--- | ```purs
--- | useEffect deps do
--- |   logShow deps
--- |   pure mempty
--- | ```
+--| Runs the given effect when the component is mounted and any time the given
+--| dependencies change. The effect should return its cleanup function. For
+--| example, if the effect registers a global event listener, it should return
+--| an Effect which removes the listener.
+--|
+--| ```purs
+--| useEffect deps do
+--|   timeoutId <- setTimeout 1000 (logShow deps)
+--|   pure (clearTimeout timeoutId)
+--| ```
+--|
+--| If no cleanup is needed, use `pure (pure unit)` or `pure mempty` to return
+--| a no-op Effect
+--|
+--| ```purs
+--| useEffect deps do
+--|   logShow deps
+--|   pure mempty
+--| ```
 useEffect ::
   forall deps.
   Eq deps =>
@@ -222,22 +232,22 @@ useEffect deps effect =
   unsafeHook do
     runEffectFn3 useEffect_ (mkFn2 eq) deps effect
 
--- | Like `useEffect`, but the effect is only performed a single time per component
--- | instance. Prefer `useEffect` with a proper dependency list whenever possible!
+--| Like `useEffect`, but the effect is only performed a single time per component
+--| instance. Prefer `useEffect` with a proper dependency list whenever possible!
 useEffectOnce :: Effect (Effect Unit) -> Hook (UseEffect Unit) Unit
 useEffectOnce effect = unsafeHook (runEffectFn3 useEffect_ (mkFn2 \_ _ -> true) unit effect)
 
--- | Like `useEffect`, but the effect is performed on every render. Prefer `useEffect`
--- | with a proper dependency list whenever possible!
+--| Like `useEffect`, but the effect is performed on every render. Prefer `useEffect`
+--| with a proper dependency list whenever possible!
 useEffectAlways :: Effect (Effect Unit) -> Hook (UseEffect Unit) Unit
 useEffectAlways effect = unsafeHook (runEffectFn1 useEffectAlways_ effect)
 
 foreign import data UseEffect :: Type -> Type -> Type
 
--- | Like `useEffect`, but the effect is performed synchronously after the browser has
--- | calculated layout. Useful for reading properties from the DOM that are not available
--- | before layout, such as element sizes and positions. Prefer `useEffect` whenever
--- | possible to avoid blocking browser painting.
+--| Like `useEffect`, but the effect is performed synchronously after the browser has
+--| calculated layout. Useful for reading properties from the DOM that are not available
+--| before layout, such as element sizes and positions. Prefer `useEffect` whenever
+--| possible to avoid blocking browser painting.
 useLayoutEffect ::
   forall deps.
   Eq deps =>
@@ -246,13 +256,13 @@ useLayoutEffect ::
   Hook (UseLayoutEffect deps) Unit
 useLayoutEffect deps effect = unsafeHook (runEffectFn3 useLayoutEffect_ (mkFn2 eq) deps effect)
 
--- | Like `useLayoutEffect`, but the effect is only performed a single time per component
--- | instance. Prefer `useLayoutEffect` with a proper dependency list whenever possible!
+--| Like `useLayoutEffect`, but the effect is only performed a single time per component
+--| instance. Prefer `useLayoutEffect` with a proper dependency list whenever possible!
 useLayoutEffectOnce :: Effect (Effect Unit) -> Hook (UseLayoutEffect Unit) Unit
 useLayoutEffectOnce effect = unsafeHook (runEffectFn3 useLayoutEffect_ (mkFn2 \_ _ -> true) unit effect)
 
--- | Like `useLayoutEffect`, but the effect is performed on every render. Prefer `useLayoutEffect`
--- | with a proper dependency list whenever possible!
+--| Like `useLayoutEffect`, but the effect is performed on every render. Prefer `useLayoutEffect`
+--| with a proper dependency list whenever possible!
 useLayoutEffectAlways :: Effect (Effect Unit) -> Hook (UseLayoutEffect Unit) Unit
 useLayoutEffectAlways effect = unsafeHook (runEffectFn1 useLayoutEffectAlways_ effect)
 
@@ -261,19 +271,19 @@ foreign import data UseLayoutEffect :: Type -> Type -> Type
 newtype Reducer state action
   = Reducer (Fn2 state action state)
 
--- | Creating reducer functions for React is effectful because
--- | React uses the function instance's reference to optimize
--- | rendering behavior.
+--| Creating reducer functions for React is effectful because
+--| React uses the function instance's reference to optimize
+--| rendering behavior.
 mkReducer :: forall state action. (state -> action -> state) -> Effect (Reducer state action)
 mkReducer = pure <<< Reducer <<< mkFn2
 
--- | Run a wrapped `Reducer` function as a normal function (like `runFn2`).
--- | Useful for testing, simulating actions, or building more complicated
--- | hooks on top of `useReducer`
+--| Run a wrapped `Reducer` function as a normal function (like `runFn2`).
+--| Useful for testing, simulating actions, or building more complicated
+--| hooks on top of `useReducer`
 runReducer :: forall state action. Reducer state action -> state -> action -> state
 runReducer (Reducer reducer) = runFn2 reducer
 
--- | Use `mkReducer` to construct a reducer function.
+--| Use `mkReducer` to construct a reducer function.
 useReducer ::
   forall state action.
   state ->
@@ -309,11 +319,11 @@ useContext context = unsafeHook (runEffectFn1 useContext_ context)
 
 foreign import data UseContext :: Type -> Type -> Type
 
--- | Cache an instance of a value, replacing it when `eq` returns `false`.
--- |
--- | This is a low-level performance optimization tool. It can be useful
--- | for optimizing a component's props for use with `memo`, where
--- | JavaScript instance equality matters.
+--| Cache an instance of a value, replacing it when `eq` returns `false`.
+--|
+--| This is a low-level performance optimization tool. It can be useful
+--| for optimizing a component's props for use with `memo`, where
+--| JavaScript instance equality matters.
 useEqCache ::
   forall a.
   Eq a =>
@@ -325,7 +335,7 @@ useEqCache a =
 
 foreign import data UseEqCache :: Type -> Type -> Type
 
--- | Lazily compute a value. The result is cached until the `deps` change.
+--| Lazily compute a value. The result is cached until the `deps` change.
 useMemo ::
   forall deps a.
   Eq deps =>
@@ -338,7 +348,7 @@ useMemo deps computeA =
 
 foreign import data UseMemo :: Type -> Type -> Type -> Type
 
--- | Use this hook to display a label for custom hooks in React DevTools
+--| Use this hook to display a label for custom hooks in React DevTools
 useDebugValue :: forall a. a -> (a -> String) -> Hook (UseDebugValue a) Unit
 useDebugValue debugValue display = unsafeHook (runEffectFn2 useDebugValue_ debugValue display)
 
@@ -352,18 +362,18 @@ derive instance newtypeUnsafeReference :: Newtype (UnsafeReference a) _
 instance eqUnsafeReference :: Eq (UnsafeReference a) where
   eq = unsafeRefEq
 
--- | Retrieve the Display Name from a `ReactComponent`. Useful for debugging and improving
--- | error messages in logs.
--- |
--- | __*See also:* `component`__
+--| Retrieve the Display Name from a `ReactComponent`. Useful for debugging and improving
+--| error messages in logs.
+--|
+--| __*See also:* `component`__
 foreign import displayName ::
   forall props.
   ReactComponent props ->
   String
 
--- |
--- | Internal utility or FFI functions
--- |
+--|
+--| Internal utility or FFI functions
+--|
 foreign import memo_ ::
   forall props.
   EffectFn1

@@ -23,14 +23,14 @@ import Effect.Unsafe (unsafePerformEffect)
 import React.Basic.Hooks (type (&), type (/\), Hook, Reducer, UnsafeReference(..), UseEffect, UseMemo, UseReducer, UseState, coerceHook, mkReducer, unsafeRenderEffect, useEffect, useMemo, useReducer, useState, (/\))
 import React.Basic.Hooks as React
 
--- | `useAff` is used for asynchronous effects or `Aff`. The asynchronous effect
--- | is re-run whenever the deps change. If another `Aff` runs when the deps
--- | change before the previous async resolves, it will cancel the previous
--- | in-flight effect.
--- |
--- | *Note: This hook requires parent components to handle error states! Don't
--- |   forget to implement a React error boundary or avoid `Aff` errors entirely
--- |   by incorporating them into your result type!*
+--| `useAff` is used for asynchronous effects or `Aff`. The asynchronous effect
+--| is re-run whenever the deps change. If another `Aff` runs when the deps
+--| change before the previous async resolves, it will cancel the previous
+--| in-flight effect.
+--|
+--| *Note: This hook requires parent components to handle error states! Don't
+--|   forget to implement a React error boundary or avoid `Aff` errors entirely
+--|   by incorporating them into your result type!*
 useAff ::
   forall deps a.
   Eq deps =>
@@ -64,24 +64,24 @@ newtype UseAff deps a hooks
 
 derive instance ntUseAff :: Newtype (UseAff deps a hooks) _
 
--- | Provide an initial state and a reducer function. This is a more powerful
--- | version of `useReducer`, where a state change can additionally queue
--- | asynchronous operations. The results of those operations must be  mapped
--- | into the reducer's `action` type. This is essentially the Elm architecture.
--- |
--- | Generally, I recommend `useAff` paired with tools like `useResetToken` over
--- | `useAffReducer` as there are many ways `useAffReducer` can result in race
--- | conditions. `useAff` with proper dependency management will handle previous
--- | request cancellation and ensure your `Aff` result is always in sync with
--- | the provided `deps`, for example. To accomplish the same thing with
--- | `useAffReducer` would require tracking `Fiber`s manually in your state
--- | somehow.. :c
--- |
--- | That said, `useAffReducer` can still be helpful when converting from the
--- | current `React.Basic` (non-hooks) API or for those used to Elm.
--- |
--- | *Note: Aff failures are thrown. If you need to capture an error state, be
--- |   sure to capture it in your action type!*
+--| Provide an initial state and a reducer function. This is a more powerful
+--| version of `useReducer`, where a state change can additionally queue
+--| asynchronous operations. The results of those operations must be  mapped
+--| into the reducer's `action` type. This is essentially the Elm architecture.
+--|
+--| Generally, I recommend `useAff` paired with tools like `useResetToken` over
+--| `useAffReducer` as there are many ways `useAffReducer` can result in race
+--| conditions. `useAff` with proper dependency management will handle previous
+--| request cancellation and ensure your `Aff` result is always in sync with
+--| the provided `deps`, for example. To accomplish the same thing with
+--| `useAffReducer` would require tracking `Fiber`s manually in your state
+--| somehow.. :c
+--|
+--| That said, `useAffReducer` can still be helpful when converting from the
+--| current `React.Basic` (non-hooks) API or for those used to Elm.
+--|
+--| *Note: Aff failures are thrown. If you need to capture an error state, be
+--|   sure to capture it in your action type!*
 useAffReducer ::
   forall state action.
   state ->
@@ -133,9 +133,9 @@ mkAffReducer ::
   Effect (AffReducer state action)
 mkAffReducer = pure <<< AffReducer <<< mkFn2
 
--- | Run a wrapped `Reducer` function as a normal function (like `runFn2`).
--- | Useful for testing, simulating actions, or building more complicated
--- | hooks on top of `useReducer`
+--| Run a wrapped `Reducer` function as a normal function (like `runFn2`).
+--| Useful for testing, simulating actions, or building more complicated
+--| hooks on top of `useReducer`
 runAffReducer ::
   forall state action.
   AffReducer state action ->
