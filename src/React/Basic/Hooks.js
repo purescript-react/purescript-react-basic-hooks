@@ -44,6 +44,15 @@ export function useLayoutEffectAlways_(effect) {
   return React.useLayoutEffect(effect);
 }
 
+export function useInsertionEffect_(eq, deps, effect) {
+  const memoizedKey = useEqCache(eq, deps);
+  React.useInsertionEffect(effect, [memoizedKey]);
+}
+
+export function useInsertionEffectAlways_(effect) {
+  React.useInsertionEffect(effect);
+}
+
 export function useReducer_(tuple, reducer, initialState) {
   const [state, dispatch] = React.useReducer(reducer, initialState);
   if (!dispatch.hasOwnProperty("$$reactBasicHooks$$cachedDispatch")) {

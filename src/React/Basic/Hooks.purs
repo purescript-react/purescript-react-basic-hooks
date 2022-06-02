@@ -20,6 +20,10 @@ module React.Basic.Hooks
   , useLayoutEffectOnce
   , useLayoutEffectAlways
   , UseLayoutEffect
+  , useInsertionEffect
+  , useInsertionEffectOnce
+  , useInsertionEffectAlways
+  , UseInsertionEffect
   , Reducer
   , mkReducer
   , runReducer
@@ -277,6 +281,26 @@ useLayoutEffectAlways effect = unsafeHook (runEffectFn1 useLayoutEffectAlways_ e
 
 foreign import data UseLayoutEffect :: Type -> Type -> Type
 
+useInsertionEffect ::
+  forall deps.
+  Eq deps =>
+  deps ->
+  Effect (Effect Unit) ->
+  Hook (UseInsertionEffect deps) Unit
+useInsertionEffect deps effect = unsafeHook (runEffectFn3 useInsertionEffect_ (mkFn2 eq) deps effect)
+
+--| Like `useInsertionEffect`, but the effect is only performed a single time per component
+--| instance. Prefer `useInsertionEffect` with a proper dependency list whenever possible!
+useInsertionEffectOnce :: Effect (Effect Unit) -> Hook (UseInsertionEffect Unit) Unit
+useInsertionEffectOnce effect = unsafeHook (runEffectFn3 useInsertionEffect_ (mkFn2 \_ _ -> true) unit effect)
+
+--| Like `useInsertionEffect`, but the effect is performed on every render. Prefer `useLayoutEffect`
+--| with a proper dependency list whenever possible!
+useInsertionEffectAlways :: Effect (Effect Unit) -> Hook (UseInsertionEffect Unit) Unit
+useInsertionEffectAlways effect = unsafeHook (runEffectFn1 useInsertionEffectAlways_ effect)
+
+foreign import data UseInsertionEffect :: Type -> Type -> Type
+
 newtype Reducer state action
   = Reducer (Fn2 state action state)
 
@@ -459,6 +483,19 @@ foreign import useLayoutEffect_ ::
     Unit
 
 foreign import useLayoutEffectAlways_ ::
+  EffectFn1
+    (Effect (Effect Unit))
+    Unit
+
+foreign import useInsertionEffect_ ::
+  forall deps.
+  EffectFn3
+    (Fn2 deps deps Boolean)
+    deps
+    (Effect (Effect Unit))
+    Unit
+
+foreign import useInsertionEffectAlways_ ::
   EffectFn1
     (Effect (Effect Unit))
     Unit
