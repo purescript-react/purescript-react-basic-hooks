@@ -3,6 +3,7 @@
 /.spago/
 /.pulp-cache/
 /output/
+/output-pulp
 /generated-docs/
 /.psc-package/
 /.psc*
