@@ -75,6 +75,11 @@ export const useDebugValue_ = React.useDebugValue;
 
 export const useId_ = React.useId
 
+export function useTransition_(tuple) {
+  const [isPending, startTransition] = React.useTransition()
+  return tuple(isPending, (t) => () => startTransition(t));
+}
+
 export function unsafeSetDisplayName(displayName, component) {
   component.displayName = displayName;
   component.toString = () => displayName;
