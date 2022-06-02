@@ -73,6 +73,8 @@ export function useMemo_(eq, deps, computeA) {
 
 export const useDebugValue_ = React.useDebugValue;
 
+export const useId_ = React.useId
+
 export function unsafeSetDisplayName(displayName, component) {
   component.displayName = displayName;
   component.toString = () => displayName;

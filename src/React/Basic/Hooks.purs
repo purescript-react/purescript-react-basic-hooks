@@ -38,6 +38,8 @@ module React.Basic.Hooks
   , UseMemo
   , useDebugValue
   , UseDebugValue
+  , useId
+  , UseId
   , UnsafeReference(..)
   , displayName
   , module React.Basic.Hooks.Internal
@@ -354,6 +356,10 @@ useDebugValue debugValue display = unsafeHook (runEffectFn2 useDebugValue_ debug
 
 foreign import data UseDebugValue :: Type -> Type -> Type
 
+foreign import data UseId :: Type -> Type
+useId :: Hook UseId String
+useId = unsafeHook useId_
+
 newtype UnsafeReference a
   = UnsafeReference a
 
@@ -478,3 +484,5 @@ foreign import useDebugValue_ ::
     a
     (a -> String)
     Unit
+
+foreign import useId_ :: Effect String
