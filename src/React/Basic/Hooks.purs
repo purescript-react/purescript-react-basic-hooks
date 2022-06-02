@@ -44,6 +44,9 @@ module React.Basic.Hooks
   , UseTransition
   , useDeferredValue
   , UseDeferredValue
+  , useSyncExternalStore
+  , useSyncExternalStore'
+  , UseSyncExternalStore
   , UnsafeReference(..)
   , displayName
   , module React.Basic.Hooks.Internal
@@ -373,6 +376,23 @@ foreign import data UseDeferredValue :: Type -> Type -> Type
 useDeferredValue :: forall a. a -> Hook (UseDeferredValue a) a
 useDeferredValue a = unsafeHook $ runEffectFn1 useDeferredValue_ a
 
+foreign import data UseSyncExternalStore :: Type -> Type -> Type
+useSyncExternalStore :: forall a.
+  ((Effect Unit) -> Effect Unit)
+  -> (Effect a)
+  -> (Effect a)
+  -> Hook (UseSyncExternalStore a) a
+useSyncExternalStore subscribe getSnapshot getServerSnapshot =
+  unsafeHook $
+    runEffectFn3 useSyncExternalStore3_ subscribe getSnapshot getServerSnapshot
+useSyncExternalStore' :: forall a.
+  ((Effect Unit) -> Effect Unit)
+  -> (Effect a)
+  -> Hook (UseSyncExternalStore a) a
+useSyncExternalStore' subscribe getSnapshot =
+  unsafeHook $
+    runEffectFn2 useSyncExternalStore2_ subscribe getSnapshot
+
 newtype UnsafeReference a
   = UnsafeReference a
 
@@ -504,3 +524,14 @@ foreign import useTransition_
   :: forall a b. EffectFn1 (a -> b -> Tuple a b) (Boolean /\ ((Effect Unit) -> Effect Unit))
 
 foreign import useDeferredValue_ :: forall a. EffectFn1 a a
+
+foreign import useSyncExternalStore2_ :: forall a. EffectFn2
+  ((Effect Unit) -> Effect Unit) -- subscribe
+  (Effect a) -- getSnapshot
+  a
+
+foreign import useSyncExternalStore3_ :: forall a. EffectFn3
+  ((Effect Unit) -> Effect Unit) -- subscribe
+  (Effect a) -- getSnapshot
+  (Effect a) -- getServerSnapshot
+  a

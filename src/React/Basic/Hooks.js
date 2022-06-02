@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useSyncExternalStore } from "react";
 
 const useEqCache = (eq, a) => {
   const memoRef = React.useRef(a);
@@ -81,6 +81,9 @@ export function useTransition_(tuple) {
 }
 
 export const useDeferredValue_ = React.useDeferredValue
+
+export const useSyncExternalStore2_ = React.useSyncExternalStore
+export const useSyncExternalStore3_ = React.useSyncExternalStore
 
 export function unsafeSetDisplayName(displayName, component) {
   component.displayName = displayName;
