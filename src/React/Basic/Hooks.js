@@ -80,6 +80,8 @@ export function useTransition_(tuple) {
   return tuple(isPending, (t) => () => startTransition(t));
 }
 
+export const useDeferredValue_ = React.useDeferredValue
+
 export function unsafeSetDisplayName(displayName, component) {
   component.displayName = displayName;
   component.toString = () => displayName;

@@ -42,6 +42,8 @@ module React.Basic.Hooks
   , UseId
   , useTransition
   , UseTransition
+  , useDeferredValue
+  , UseDeferredValue
   , UnsafeReference(..)
   , displayName
   , module React.Basic.Hooks.Internal
@@ -60,7 +62,6 @@ import Data.Tuple (Tuple(..))
 import Data.Tuple.Nested (type (/\), (/\))
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, mkEffectFn1, runEffectFn1, runEffectFn2, runEffectFn3)
-import Foreign (Foreign)
 import Prelude (bind) as Prelude
 import Prim.Row (class Lacks)
 import React.Basic (JSX, ReactComponent, ReactContext, Ref, consumer, contextConsumer, contextProvider, createContext, element, elementKeyed, empty, keyed, fragment, provider)
@@ -368,6 +369,10 @@ useTransition ::
   Hook UseTransition (Boolean /\ ((Effect Unit) -> Effect Unit))
 useTransition = unsafeHook $ runEffectFn1 useTransition_ Tuple
 
+foreign import data UseDeferredValue :: Type -> Type -> Type
+useDeferredValue :: forall a. a -> Hook (UseDeferredValue a) a
+useDeferredValue a = unsafeHook $ runEffectFn1 useDeferredValue_ a
+
 newtype UnsafeReference a
   = UnsafeReference a
 
@@ -497,3 +502,5 @@ foreign import useId_ :: Effect String
 
 foreign import useTransition_
   :: forall a b. EffectFn1 (a -> b -> Tuple a b) (Boolean /\ ((Effect Unit) -> Effect Unit))
+
+foreign import useDeferredValue_ :: forall a. EffectFn1 a a
