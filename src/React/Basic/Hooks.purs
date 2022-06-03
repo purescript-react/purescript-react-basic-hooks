@@ -294,7 +294,7 @@ useInsertionEffect deps effect = unsafeHook (runEffectFn3 useInsertionEffect_ (m
 useInsertionEffectOnce :: Effect (Effect Unit) -> Hook (UseInsertionEffect Unit) Unit
 useInsertionEffectOnce effect = unsafeHook (runEffectFn3 useInsertionEffect_ (mkFn2 \_ _ -> true) unit effect)
 
---| Like `useInsertionEffect`, but the effect is performed on every render. Prefer `useLayoutEffect`
+--| Like `useInsertionEffect`, but the effect is performed on every render. Prefer `useInsertionEffect`
 --| with a proper dependency list whenever possible!
 useInsertionEffectAlways :: Effect (Effect Unit) -> Hook (UseInsertionEffect Unit) Unit
 useInsertionEffectAlways effect = unsafeHook (runEffectFn1 useInsertionEffectAlways_ effect)
