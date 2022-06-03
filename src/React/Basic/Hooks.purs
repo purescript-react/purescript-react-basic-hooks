@@ -394,7 +394,7 @@ useId = unsafeHook useId_
 foreign import data UseTransition :: Type -> Type
 useTransition ::
   Hook UseTransition (Boolean /\ ((Effect Unit) -> Effect Unit))
-useTransition = unsafeHook $ runEffectFn1 useTransition_ Tuple
+useTransition = unsafeHook $ runEffectFn1 useTransition_ (mkFn2 Tuple)
 
 foreign import data UseDeferredValue :: Type -> Type -> Type
 useDeferredValue :: forall a. a -> Hook (UseDeferredValue a) a
@@ -402,20 +402,23 @@ useDeferredValue a = unsafeHook $ runEffectFn1 useDeferredValue_ a
 
 foreign import data UseSyncExternalStore :: Type -> Type -> Type
 useSyncExternalStore :: forall a.
-  ((Effect Unit) -> Effect Unit)
+  ((Effect Unit) -> Effect (Effect Unit))
   -> (Effect a)
   -> (Effect a)
   -> Hook (UseSyncExternalStore a) a
 useSyncExternalStore subscribe getSnapshot getServerSnapshot =
   unsafeHook $
-    runEffectFn3 useSyncExternalStore3_ subscribe getSnapshot getServerSnapshot
+    runEffectFn3 useSyncExternalStore3_
+      (mkEffectFn1 subscribe)
+      getSnapshot
+      getServerSnapshot
 useSyncExternalStore' :: forall a.
-  ((Effect Unit) -> Effect Unit)
+  ((Effect Unit) -> Effect (Effect Unit))
   -> (Effect a)
   -> Hook (UseSyncExternalStore a) a
 useSyncExternalStore' subscribe getSnapshot =
   unsafeHook $
-    runEffectFn2 useSyncExternalStore2_ subscribe getSnapshot
+    runEffectFn2 useSyncExternalStore2_ (mkEffectFn1 subscribe) getSnapshot
 
 newtype UnsafeReference a
   = UnsafeReference a
@@ -558,17 +561,18 @@ foreign import useDebugValue_ ::
 foreign import useId_ :: Effect String
 
 foreign import useTransition_
-  :: forall a b. EffectFn1 (a -> b -> Tuple a b) (Boolean /\ ((Effect Unit) -> Effect Unit))
+  :: forall a b. EffectFn1 (Fn2 a b (a /\ b))
+    (Boolean /\ ((Effect Unit) -> Effect Unit))
 
 foreign import useDeferredValue_ :: forall a. EffectFn1 a a
 
 foreign import useSyncExternalStore2_ :: forall a. EffectFn2
-  ((Effect Unit) -> Effect Unit) -- subscribe
+  (EffectFn1 (Effect Unit) (Effect Unit)) -- subscribe
   (Effect a) -- getSnapshot
   a
 
 foreign import useSyncExternalStore3_ :: forall a. EffectFn3
-  ((Effect Unit) -> Effect Unit) -- subscribe
+  (EffectFn1 (Effect Unit) (Effect Unit)) -- subscribe
   (Effect a) -- getSnapshot
   (Effect a) -- getServerSnapshot
   a

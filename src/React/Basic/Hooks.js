@@ -85,8 +85,9 @@ export const useDebugValue_ = React.useDebugValue;
 export const useId_ = React.useId
 
 export function useTransition_(tuple) {
-  const [isPending, startTransition] = React.useTransition()
-  return tuple(isPending, (t) => () => startTransition(t));
+  const [isPending, startTransitionImpl] = React.useTransition()
+  const startTransition = (update) => () => startTransitionImpl(update)
+  return tuple(isPending, startTransition);
 }
 
 export const useDeferredValue_ = React.useDeferredValue
