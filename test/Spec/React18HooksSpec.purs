@@ -56,8 +56,8 @@ spec =
           { findByTestId } <- renderComponent useSyncExternalStore {}
           spanElem <- findByTestId "span"
           spanElem `textContentShouldEqual` "0"
-          delay (300.0 # Milliseconds)
-          spanElem `textContentShouldEqual` "2"
+          delay (350.0 # Milliseconds)
+          spanElem `textContentShouldEqual` "3"
 
         it "useInsertionEffect works" \{ useInsertionEffect } -> do
           { findByText } <- renderComponent useInsertionEffect {}
