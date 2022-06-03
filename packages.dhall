@@ -1,6 +1,6 @@
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.15.0-20220523/packages.dhall
-        sha256:985f90fa68fd8b43b14c777d6ec2c161c4dd9009563b6f51685a54e4a26bf8ff
+      https://github.com/purescript/package-sets/releases/download/psc-0.15.2-20220531/packages.dhall
+        sha256:278d3608439187e51136251ebf12fabda62d41ceb4bec9769312a08b56f853e3
 
 in  upstream
   with react-testing-library =

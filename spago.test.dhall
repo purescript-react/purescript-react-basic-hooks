@@ -6,5 +6,12 @@ in conf // {
       [ "react-testing-library"
       , "react-basic-dom"
       , "spec"
+      , "spec-discovery"
+      , "foreign-object"
+      , "web-dom"
+      , "arrays"
+      , "strings"
+      , "debug"
+      , "tailrec"
       ]
 }
