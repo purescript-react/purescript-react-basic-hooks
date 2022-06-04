@@ -29,21 +29,3 @@ in  upstream
         "https://github.com/i-am-the-slime/purescript-react-testing-library"
     , version = "v4.0.1"
     }
-  with react-basic-dom =
-    { dependencies =
-      [ "effect"
-      , "foldable-traversable"
-      , "foreign-object"
-      , "maybe"
-      , "nullable"
-      , "prelude"
-      , "react-basic"
-      , "unsafe-coerce"
-      , "web-dom"
-      , "web-events"
-      , "web-file"
-      , "web-html"
-      ]
-    , repo = "https://github.com/Zelenya7/purescript-react-basic-dom"
-    , version = "purescript-0.15-spago"
-    }
