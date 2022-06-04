@@ -1,4 +1,4 @@
-import React, { useSyncExternalStore } from "react";
+import React from "react";
 
 const useEqCache = (eq, a) => {
   const memoRef = React.useRef(a);
