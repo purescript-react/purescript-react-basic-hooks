@@ -20,6 +20,10 @@ module React.Basic.Hooks
   , useLayoutEffectOnce
   , useLayoutEffectAlways
   , UseLayoutEffect
+  , useInsertionEffect
+  , useInsertionEffectOnce
+  , useInsertionEffectAlways
+  , UseInsertionEffect
   , Reducer
   , mkReducer
   , runReducer
@@ -38,6 +42,15 @@ module React.Basic.Hooks
   , UseMemo
   , useDebugValue
   , UseDebugValue
+  , useId
+  , UseId
+  , useTransition
+  , UseTransition
+  , useDeferredValue
+  , UseDeferredValue
+  , useSyncExternalStore
+  , useSyncExternalStore'
+  , UseSyncExternalStore
   , UnsafeReference(..)
   , displayName
   , module React.Basic.Hooks.Internal
@@ -268,6 +281,26 @@ useLayoutEffectAlways effect = unsafeHook (runEffectFn1 useLayoutEffectAlways_ e
 
 foreign import data UseLayoutEffect :: Type -> Type -> Type
 
+useInsertionEffect ::
+  forall deps.
+  Eq deps =>
+  deps ->
+  Effect (Effect Unit) ->
+  Hook (UseInsertionEffect deps) Unit
+useInsertionEffect deps effect = unsafeHook (runEffectFn3 useInsertionEffect_ (mkFn2 eq) deps effect)
+
+--| Like `useInsertionEffect`, but the effect is only performed a single time per component
+--| instance. Prefer `useInsertionEffect` with a proper dependency list whenever possible!
+useInsertionEffectOnce :: Effect (Effect Unit) -> Hook (UseInsertionEffect Unit) Unit
+useInsertionEffectOnce effect = unsafeHook (runEffectFn3 useInsertionEffect_ (mkFn2 \_ _ -> true) unit effect)
+
+--| Like `useInsertionEffect`, but the effect is performed on every render. Prefer `useInsertionEffect`
+--| with a proper dependency list whenever possible!
+useInsertionEffectAlways :: Effect (Effect Unit) -> Hook (UseInsertionEffect Unit) Unit
+useInsertionEffectAlways effect = unsafeHook (runEffectFn1 useInsertionEffectAlways_ effect)
+
+foreign import data UseInsertionEffect :: Type -> Type -> Type
+
 newtype Reducer state action
   = Reducer (Fn2 state action state)
 
@@ -354,6 +387,39 @@ useDebugValue debugValue display = unsafeHook (runEffectFn2 useDebugValue_ debug
 
 foreign import data UseDebugValue :: Type -> Type -> Type
 
+foreign import data UseId :: Type -> Type
+useId :: Hook UseId String
+useId = unsafeHook useId_
+
+foreign import data UseTransition :: Type -> Type
+useTransition ::
+  Hook UseTransition (Boolean /\ ((Effect Unit) -> Effect Unit))
+useTransition = unsafeHook $ runEffectFn1 useTransition_ (mkFn2 Tuple)
+
+foreign import data UseDeferredValue :: Type -> Type -> Type
+useDeferredValue :: forall a. a -> Hook (UseDeferredValue a) a
+useDeferredValue a = unsafeHook $ runEffectFn1 useDeferredValue_ a
+
+foreign import data UseSyncExternalStore :: Type -> Type -> Type
+useSyncExternalStore :: forall a.
+  ((Effect Unit) -> Effect (Effect Unit))
+  -> (Effect a)
+  -> (Effect a)
+  -> Hook (UseSyncExternalStore a) a
+useSyncExternalStore subscribe getSnapshot getServerSnapshot =
+  unsafeHook $
+    runEffectFn3 useSyncExternalStore3_
+      (mkEffectFn1 subscribe)
+      getSnapshot
+      getServerSnapshot
+useSyncExternalStore' :: forall a.
+  ((Effect Unit) -> Effect (Effect Unit))
+  -> (Effect a)
+  -> Hook (UseSyncExternalStore a) a
+useSyncExternalStore' subscribe getSnapshot =
+  unsafeHook $
+    runEffectFn2 useSyncExternalStore2_ (mkEffectFn1 subscribe) getSnapshot
+
 newtype UnsafeReference a
   = UnsafeReference a
 
@@ -424,6 +490,19 @@ foreign import useLayoutEffectAlways_ ::
     (Effect (Effect Unit))
     Unit
 
+foreign import useInsertionEffect_ ::
+  forall deps.
+  EffectFn3
+    (Fn2 deps deps Boolean)
+    deps
+    (Effect (Effect Unit))
+    Unit
+
+foreign import useInsertionEffectAlways_ ::
+  EffectFn1
+    (Effect (Effect Unit))
+    Unit
+
 foreign import useReducer_ ::
   forall state action.
   EffectFn3
@@ -478,3 +557,22 @@ foreign import useDebugValue_ ::
     a
     (a -> String)
     Unit
+
+foreign import useId_ :: Effect String
+
+foreign import useTransition_
+  :: forall a b. EffectFn1 (Fn2 a b (a /\ b))
+    (Boolean /\ ((Effect Unit) -> Effect Unit))
+
+foreign import useDeferredValue_ :: forall a. EffectFn1 a a
+
+foreign import useSyncExternalStore2_ :: forall a. EffectFn2
+  (EffectFn1 (Effect Unit) (Effect Unit)) -- subscribe
+  (Effect a) -- getSnapshot
+  a
+
+foreign import useSyncExternalStore3_ :: forall a. EffectFn3
+  (EffectFn1 (Effect Unit) (Effect Unit)) -- subscribe
+  (Effect a) -- getSnapshot
+  (Effect a) -- getServerSnapshot
+  a

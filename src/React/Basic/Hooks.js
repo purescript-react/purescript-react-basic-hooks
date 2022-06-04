@@ -44,6 +44,15 @@ export function useLayoutEffectAlways_(effect) {
   return React.useLayoutEffect(effect);
 }
 
+export function useInsertionEffect_(eq, deps, effect) {
+  const memoizedKey = useEqCache(eq, deps);
+  React.useInsertionEffect(effect, [memoizedKey]);
+}
+
+export function useInsertionEffectAlways_(effect) {
+  React.useInsertionEffect(effect);
+}
+
 export function useReducer_(tuple, reducer, initialState) {
   const [state, dispatch] = React.useReducer(reducer, initialState);
   if (!dispatch.hasOwnProperty("$$reactBasicHooks$$cachedDispatch")) {
@@ -72,6 +81,19 @@ export function useMemo_(eq, deps, computeA) {
 }
 
 export const useDebugValue_ = React.useDebugValue;
+
+export const useId_ = React.useId
+
+export function useTransition_(tuple) {
+  const [isPending, startTransitionImpl] = React.useTransition()
+  const startTransition = (update) => () => startTransitionImpl(update)
+  return tuple(isPending, startTransition);
+}
+
+export const useDeferredValue_ = React.useDeferredValue
+
+export const useSyncExternalStore2_ = React.useSyncExternalStore
+export const useSyncExternalStore3_ = React.useSyncExternalStore
 
 export function unsafeSetDisplayName(displayName, component) {
   component.displayName = displayName;

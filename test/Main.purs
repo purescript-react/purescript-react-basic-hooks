@@ -6,7 +6,7 @@ import Data.Maybe (Maybe(..))
 import Data.Time.Duration (Seconds(..), fromDuration)
 import Effect (Effect)
 import Effect.Aff (delay, launchAff_)
-import Test.Discovery (discover)
+import Test.Spec.Discovery (discover)
 import Test.Spec.Reporter (consoleReporter)
 import Test.Spec.Runner (defaultConfig, runSpec')
 
