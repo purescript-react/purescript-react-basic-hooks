@@ -5,7 +5,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/spicydonuts/purescript-react-basic-hooks"
+    "url": "https://github.com/megamaddu/purescript-react-basic-hooks"
   },
   "ignore": [
     "**/.*",
