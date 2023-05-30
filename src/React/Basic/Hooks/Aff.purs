@@ -1,5 +1,6 @@
 module React.Basic.Hooks.Aff
   ( useAff
+  , useSteppingAff
   , UseAff(..)
   , useAffReducer
   , AffReducer
@@ -37,11 +38,33 @@ useAff ::
   deps ->
   Aff a ->
   Hook (UseAff deps a) (Maybe a)
-useAff deps aff =
+useAff = useAff' (const Nothing)
+
+--| A variant of `useAff` where the asynchronous effect's result is preserved up
+--| until the next run of the asynchronous effect _completes_.
+--|
+--| Contrast this with `useAff`, where the asynchronous effect's result is
+--| preserved only up until the next run of the asynchronous effect _starts_.
+useSteppingAff ::
+  forall deps a.
+  Eq deps =>
+  deps ->
+  Aff a ->
+  Hook (UseAff deps a) (Maybe a)
+useSteppingAff = useAff' identity
+
+useAff' ::
+  forall deps a.
+  Eq deps =>
+  (Maybe (Either Error a) -> Maybe (Either Error a)) ->
+  deps ->
+  Aff a ->
+  Hook (UseAff deps a) (Maybe a)
+useAff' initUpdater deps aff =
   coerceHook React.do
     result /\ setResult <- useState Nothing
     useEffect deps do
-      setResult (const Nothing)
+      setResult initUpdater
       fiber <-
         launchAff do
           r <- try aff
