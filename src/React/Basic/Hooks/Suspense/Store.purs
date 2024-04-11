@@ -38,7 +38,7 @@ mkSuspenseStore ::
 mkSuspenseStore defaultMaxAge backend = do
   ref <- Ref.new Map.empty
   let
-    isExpired maxAge now' (_ /\ d) = unInstant now' < unInstant d <> maxAge
+    isExpired maxAge now' (_ /\ savedTime) = unInstant savedTime <> maxAge < unInstant now'
 
     pruneCache = do
       case defaultMaxAge of
