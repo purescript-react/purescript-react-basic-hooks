@@ -191,6 +191,6 @@ type HookApply hooks (newHook :: Type -> Type)
 --| order they appear when actually used in do-notation.
 --| ```purescript
 --| type UseCustomHook hooks = UseEffect String (UseState Int hooks)
---| type UseCustomHook' = UseState Int & UseEffect String
+--| type UseCustomHook' hooks = hooks & UseState Int & UseEffect String
 --| ```
 infixl 0 type HookApply as &
