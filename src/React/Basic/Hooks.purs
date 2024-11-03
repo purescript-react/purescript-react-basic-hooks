@@ -75,6 +75,7 @@ import React.Basic (JSX, ReactComponent, ReactContext, Ref, consumer, contextCon
 import React.Basic.Hooks.Internal (Hook, HookApply, Pure, Render, bind, discard, coerceHook, unsafeHook, unsafeRenderEffect, type (&))
 import Unsafe.Coerce (unsafeCoerce)
 import Unsafe.Reference (unsafeRefEq)
+import Effect.Unsafe (unsafePerformEffect)
 
 --| A simple type alias to clean up component definitions.
 type Component props
@@ -104,7 +105,6 @@ reactComponent ::
   forall hooks props.
   Lacks "children" props =>
   Lacks "key" props =>
-  Lacks "ref" props =>
   String ->
   ({ | props } -> Render Unit hooks JSX) ->
   Effect (ReactComponent { | props })
@@ -116,7 +116,6 @@ reactComponent = unsafeReactComponent
 reactComponentWithChildren ::
   forall hooks props children.
   Lacks "key" props =>
-  Lacks "ref" props =>
   String ->
   ({ children :: ReactChildren children | props } -> Render Unit hooks JSX) ->
   Effect (ReactComponent { children :: ReactChildren children | props })
@@ -131,7 +130,6 @@ reactComponentFromHook ::
   forall hooks props r.
   Lacks "children" props =>
   Lacks "key" props =>
-  Lacks "ref" props =>
   String ->
   ({ render :: r -> JSX | props } -> Hook hooks r) ->
   Effect (ReactComponent { render :: r -> JSX | props })
@@ -141,7 +139,6 @@ reactComponentFromHook name propsToHook = do
 unsafeReactComponent ::
   forall hooks props.
   Lacks "key" props =>
-  Lacks "ref" props =>
   String ->
   ({ | props } -> Render Unit hooks JSX) ->
   Effect (ReactComponent { | props })
@@ -174,7 +171,7 @@ reactChildrenFromArray = unsafeCoerce
 --| Prevents a component from re-rendering if its new props are referentially
 --| equal to its old props (not value-based equality -- this is due to the
 --| underlying React implementation).
---| Prefer `memo'` for more PureScript-friendldy behavior.
+--| Prefer `memo'` for more PureScript-friendly behavior.
 memo ::
   forall props.
   Effect (ReactComponent props) ->
