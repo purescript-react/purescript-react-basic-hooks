@@ -5,8 +5,8 @@
   "main": "index.js",
   "module": "true",
   "dependencies": {
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "react": "next",
+    "react-dom": "next"
   },
   "devDependencies": {
     "@testing-library/react": "^13.2.0",
@@ -17,8 +17,8 @@
     "jsdom-global": "^3.0.2",
     "npm-run-all": "^4.1.5",
     "pulp": "^16.0.1",
-    "purescript": "^0.15.2",
-    "spago": "^0.20.9"
+    "purescript": "^0.15.15",
+    "spago": "^0.21.0"
   },
   "scripts": {
     "deps": "run-s deps:*",
