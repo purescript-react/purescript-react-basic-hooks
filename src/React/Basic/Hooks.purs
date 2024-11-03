@@ -1,7 +1,12 @@
 module React.Basic.Hooks
   ( Component
   , component
+  , topLevelComponent
   , reactComponent
+  , topLevelReactComponent
+  , (:=)
+  , reactComponentWithChildren
+  , topLevelReactComponentWithChildren
   , reactComponentWithChildren
   , reactComponentFromHook
   , ReactChildren
@@ -95,6 +100,25 @@ component name renderFn = Prelude.do
   c <- reactComponent name (renderFn <<< _.nested)
   pure (element c <<< { nested: _ })
 
+--| Create a component that lives at the top level of your module
+--| For example:
+--| ```purs
+--| greet = topLevelComponent "Greet" \props -> React.do
+--|   pure (span {} ("Hello, " <> props.name))
+--| ```
+--| This is equivalent to:
+--| ```jsx
+--| const Greet = (props) =>
+--|   <span>Hello, {props.name}</span>
+--| ```
+--| To instantiate the component, use it like a function:
+--| ```purs
+--| greet { name: "World" }
+--| ```
+--| [WARNING] This function is effectful and you must only call it at the top level of your module.
+topLevelComponent :: forall hooks props. String -> (props -> Render Unit hooks JSX) -> (props -> JSX)
+topLevelComponent name = unsafePerformEffect <<< component name
+
 --| Create a React component given a display name and render function.
 --| Creating components is effectful because React uses the function
 --| instance as the component's "identity" or "type". Components should
@@ -110,8 +134,41 @@ reactComponent ::
   Effect (ReactComponent { | props })
 reactComponent = unsafeReactComponent
 
+--| Create a top-level React component that can be used as a function.
+--| other components. For example:
+--|
+--| ```purs
+--| greetComponent :: ReactComponent { name :: String }
+--| greetComponent = topLevelReactComponent "Greet" \{ name } -> React.do
+--|   pure (span {} ("Hello, " <> name))
+--|
+--| -- A helper for using the component in PureScript
+--| greet :: { name :: String } -> JSX
+--| greet = React.element greetComponent
+--| ```
+--|
+--| Then you can use the component like a function:
+--| ```purs
+--| greet { name: "World" }
+--| ```
+--|
+--| This produces components that React recognises as such, which is
+--| useful when using components created with PureScript in `.jsx` files.
+--| It's also important for using 'use client' and 'use server' annotations
+--| ```
+topLevelReactComponent ::
+  forall hooks props.
+  Lacks "children" props =>
+  Lacks "key" props =>
+  String ->
+  ({ | props } -> Render Unit hooks JSX) ->
+  ReactComponent { | props }
+topLevelReactComponent name renderFn = unsafePerformEffect (unsafeReactComponent name renderFn)
+
+infixl 3 topLevelReactComponent as :=
+
 --| Create a React component given a display name and render function.
---| This is the same as `component` but allows the use of the `children`
+--| This is the same as `reactComponent` but allows the use of the `children`
 --| prop.
 reactComponentWithChildren ::
   forall hooks props children.
@@ -120,6 +177,17 @@ reactComponentWithChildren ::
   ({ children :: ReactChildren children | props } -> Render Unit hooks JSX) ->
   Effect (ReactComponent { children :: ReactChildren children | props })
 reactComponentWithChildren = unsafeReactComponent
+
+--| Create a React component given a display name and render function.
+--| This is the same as `topLevelReactComponent` but allows the use of the `children`
+--| prop.
+topLevelReactComponentWithChildren ::
+  forall hooks props children.
+  Lacks "key" props =>
+  String ->
+  ({ children :: ReactChildren children | props } -> Render Unit hooks JSX) ->
+  ReactComponent { children :: ReactChildren children | props }
+topLevelReactComponentWithChildren name renderFn = unsafePerformEffect (unsafeReactComponent name renderFn)
 
 --| Convert a hook to a render-prop component. The value returned from the
 --| hook will be passed to the `render` prop, a function from that value

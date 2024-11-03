@@ -4,7 +4,7 @@ import Prelude
 
 import Control.Monad.Rec.Class (forever)
 import Data.Array as Array
-import Data.Foldable (for_, traverse_)
+import Data.Foldable (sequence_, traverse_)
 import Data.Maybe (fromMaybe)
 import Data.Monoid (guard, power)
 import Data.String as String
@@ -122,7 +122,7 @@ spec =
           delay (100.0 # Milliseconds)
           intRef # Ref.modify_ (_ + 1) # liftEffect
           subscribers <- subscribersRef # Ref.read # liftEffect
-          liftEffect $ for_ subscribers identity
+          liftEffect $ sequence_ subscribers
 
         pure
           { subscribe: \callback -> do
