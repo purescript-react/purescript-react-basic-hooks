@@ -331,6 +331,28 @@ useReducer initialState (Reducer reducer) =
 
 foreign import data UseReducer :: Type -> Type -> Type -> Type
 
+-- | Typically used to create a reference to a DOM element. Usage example:
+-- |
+-- | ```purs
+-- | type NodeRef = Ref (Nullable Node)
+-- |
+-- | newNodeRef :: React.Hook (React.UseRef (Nullable Node)) NodeRef
+-- | newNodeRef = React.useRef null
+-- |
+-- | myComponent :: Component {}
+-- | myComponent = component "MyComponent" \_ -> React.do
+-- |     dialogRef :: NodeRef <- newNodeRef
+-- |     let myOnClose = resetDialog dialogRef
+-- |     pure $
+-- |      R.dialog
+-- |        { ref: dialogRef
+-- |        , children: [ R.form { ref: dialogRef } ]
+-- |        , onClose: myOnClose
+-- |        }
+-- | ```
+-- |
+-- | Here, the reference is being connected with the `dialog` via `ref` field, and at
+-- | the same time it's passed to `resetDialog` event handler.
 useRef :: forall a. a -> Hook (UseRef a) (Ref a)
 useRef initialValue =
   unsafeHook do
