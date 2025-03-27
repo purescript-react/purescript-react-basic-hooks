@@ -1,0 +1,56 @@
+package:
+  dependencies:
+    - aff
+    - aff-promise
+    - bifunctors
+    - console
+    - control
+    - datetime
+    - effect
+    - either
+    - exceptions
+    - foldable-traversable
+    - functions
+    - indexed-monad
+    - integers
+    - maybe
+    - newtype
+    - now
+    - nullable
+    - ordered-collections
+    - prelude
+    - react-basic
+    - refs
+    - tuples
+    - type-equality
+    - unsafe-coerce
+    - unsafe-reference
+    - web-html
+  name: react-basic-hooks
+workspace:
+  extraPackages:
+    react-testing-library:
+      dependencies:
+        - aff
+        - aff-promise
+        - control
+        - effect
+        - exceptions
+        - foldable-traversable
+        - foreign
+        - functions
+        - identity
+        - maybe
+        - prelude
+        - react-basic
+        - spec
+        - strings
+        - transformers
+        - unsafe-coerce
+        - web-dom
+        - web-events
+        - web-html
+      git: https://github.com/i-am-the-slime/purescript-react-testing-library
+      ref: master
+  packageSet:
+    registry: 63.6.0
