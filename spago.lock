@@ -772,14 +772,9 @@
       }
     },
     "extra_packages": {
-      "react-basic": {
-        "path": "/home/srghma/projects/purescript-react-basic"
-      },
-      "react-basic-dom": {
-        "path": "/home/srghma/projects/purescript-react-basic-dom"
-      },
       "react-testing-library": {
-        "path": "/home/srghma/projects/purescript-react-testing-library"
+        "git": "https://github.com/srghma/purescript-react-testing-library",
+        "ref": "update"
       }
     }
   },
@@ -1600,18 +1595,19 @@
       ]
     },
     "react-basic": {
-      "type": "local",
-      "path": "/home/srghma/projects/purescript-react-basic",
+      "type": "registry",
+      "version": "17.0.0",
+      "integrity": "sha256-xE5sL14ITpSRCbAnWrp7KAfbzv+Ft0rSaAnjkqKcSVY=",
       "dependencies": [
         "effect",
-        "nullable",
         "prelude",
         "record"
       ]
     },
     "react-basic-dom": {
-      "type": "local",
-      "path": "/home/srghma/projects/purescript-react-basic-dom",
+      "type": "registry",
+      "version": "7.0.0",
+      "integrity": "sha256-a9M8K2iVA3AAhJQGj36bapcdmGJk9ichLghK4/ZFkB0=",
       "dependencies": [
         "arrays",
         "effect",
@@ -1630,8 +1626,9 @@
       ]
     },
     "react-testing-library": {
-      "type": "local",
-      "path": "/home/srghma/projects/purescript-react-testing-library",
+      "type": "git",
+      "url": "https://github.com/srghma/purescript-react-testing-library",
+      "rev": "ddc44723d151d1d7d07add5f3e81a6189a046e58",
       "dependencies": [
         "aff",
         "aff-promise",

@@ -43,6 +43,20 @@ package:
       - react-basic-dom
       - spec-discovery
 workspace:
-  extraPackages: {}
+  extraPackages:
+    # react-basic:
+    #   git: https://github.com/purescript-react/purescript-react-basic
+    #   ref: master
+    #   # path: /home/srghma/projects/purescript-react-basic
+    # react-basic-dom:
+    #   git: https://github.com/purescript-react/purescript-react-basic-dom
+    #   ref: master
+    #   # path: /home/srghma/projects/purescript-react-basic-dom
+    react-testing-library:
+      # git: https://github.com/i-am-the-slime/purescript-react-testing-library
+      # ref: master
+      git: https://github.com/srghma/purescript-react-testing-library
+      ref: update
+      # path: /home/srghma/projects/purescript-react-testing-library
   packageSet:
     registry: 63.6.0
