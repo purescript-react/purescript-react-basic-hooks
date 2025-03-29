@@ -5,32 +5,84 @@
         "path": "./",
         "core": {
           "dependencies": [
-            "aff",
-            "aff-promise",
-            "bifunctors",
-            "console",
-            "control",
-            "datetime",
-            "effect",
-            "either",
-            "exceptions",
-            "foldable-traversable",
-            "functions",
-            "indexed-monad",
-            "integers",
-            "maybe",
-            "newtype",
-            "now",
-            "nullable",
-            "ordered-collections",
-            "prelude",
-            "react-basic",
-            "refs",
-            "tuples",
-            "type-equality",
-            "unsafe-coerce",
-            "unsafe-reference",
-            "web-html"
+            {
+              "aff": ">=8.0.0 <9.0.0"
+            },
+            {
+              "aff-promise": ">=4.0.0 <5.0.0"
+            },
+            {
+              "bifunctors": ">=6.0.0 <7.0.0"
+            },
+            {
+              "console": ">=6.1.0 <7.0.0"
+            },
+            {
+              "control": ">=6.0.0 <7.0.0"
+            },
+            {
+              "datetime": ">=6.1.0 <7.0.0"
+            },
+            {
+              "effect": ">=4.0.0 <5.0.0"
+            },
+            {
+              "either": ">=6.1.0 <7.0.0"
+            },
+            {
+              "exceptions": ">=6.1.0 <7.0.0"
+            },
+            {
+              "foldable-traversable": ">=6.0.0 <7.0.0"
+            },
+            {
+              "functions": ">=6.0.0 <7.0.0"
+            },
+            {
+              "indexed-monad": ">=3.0.0 <4.0.0"
+            },
+            {
+              "integers": ">=6.0.0 <7.0.0"
+            },
+            {
+              "maybe": ">=6.0.0 <7.0.0"
+            },
+            {
+              "newtype": ">=5.0.0 <6.0.0"
+            },
+            {
+              "now": ">=6.0.0 <7.0.0"
+            },
+            {
+              "nullable": ">=6.0.0 <7.0.0"
+            },
+            {
+              "ordered-collections": ">=3.2.0 <4.0.0"
+            },
+            {
+              "prelude": ">=6.0.2 <7.0.0"
+            },
+            {
+              "react-basic": ">=17.0.0 <18.0.0"
+            },
+            {
+              "refs": ">=6.0.0 <7.0.0"
+            },
+            {
+              "tuples": ">=7.0.0 <8.0.0"
+            },
+            {
+              "type-equality": ">=4.0.1 <5.0.0"
+            },
+            {
+              "unsafe-coerce": ">=6.0.0 <7.0.0"
+            },
+            {
+              "unsafe-reference": ">=5.0.0 <6.0.0"
+            },
+            {
+              "web-html": ">=4.1.0 <5.0.0"
+            }
           ],
           "build_plan": [
             "aff",
@@ -94,8 +146,99 @@
           ]
         },
         "test": {
-          "dependencies": [],
-          "build_plan": []
+          "dependencies": [
+            "console",
+            "effect",
+            "react-basic",
+            "react-basic-dom",
+            "react-testing-library",
+            "spec-discovery"
+          ],
+          "build_plan": [
+            "aff",
+            "aff-promise",
+            "ansi",
+            "argonaut-codecs",
+            "argonaut-core",
+            "arraybuffer-types",
+            "arrays",
+            "avar",
+            "bifunctors",
+            "catenable-lists",
+            "console",
+            "const",
+            "contravariant",
+            "control",
+            "datetime",
+            "distributive",
+            "effect",
+            "either",
+            "enums",
+            "exceptions",
+            "exists",
+            "exitcodes",
+            "foldable-traversable",
+            "foreign",
+            "foreign-object",
+            "fork",
+            "free",
+            "functions",
+            "functors",
+            "gen",
+            "identity",
+            "integers",
+            "invariant",
+            "js-date",
+            "lazy",
+            "lists",
+            "maybe",
+            "media-types",
+            "mmorph",
+            "newtype",
+            "node-buffer",
+            "node-event-emitter",
+            "node-fs",
+            "node-path",
+            "node-process",
+            "node-streams",
+            "nonempty",
+            "now",
+            "nullable",
+            "numbers",
+            "open-memoize",
+            "optparse",
+            "ordered-collections",
+            "orders",
+            "parallel",
+            "partial",
+            "pipes",
+            "posix-types",
+            "prelude",
+            "profunctor",
+            "react-basic",
+            "react-basic-dom",
+            "react-testing-library",
+            "record",
+            "refs",
+            "safe-coerce",
+            "spec",
+            "spec-discovery",
+            "spec-node",
+            "st",
+            "strings",
+            "tailrec",
+            "transformers",
+            "tuples",
+            "type-equality",
+            "typelevel-prelude",
+            "unfoldable",
+            "unsafe-coerce",
+            "web-dom",
+            "web-events",
+            "web-file",
+            "web-html",
+            "web-storage"
+          ]
         }
       }
     },
@@ -629,30 +772,14 @@
       }
     },
     "extra_packages": {
+      "react-basic": {
+        "path": "/home/srghma/projects/purescript-react-basic"
+      },
+      "react-basic-dom": {
+        "path": "/home/srghma/projects/purescript-react-basic-dom"
+      },
       "react-testing-library": {
-        "git": "https://github.com/i-am-the-slime/purescript-react-testing-library",
-        "ref": "master",
-        "dependencies": [
-          "aff",
-          "aff-promise",
-          "control",
-          "effect",
-          "exceptions",
-          "foldable-traversable",
-          "foreign",
-          "functions",
-          "identity",
-          "maybe",
-          "prelude",
-          "react-basic",
-          "spec",
-          "strings",
-          "transformers",
-          "unsafe-coerce",
-          "web-dom",
-          "web-events",
-          "web-html"
-        ]
+        "path": "/home/srghma/projects/purescript-react-testing-library"
       }
     }
   },
@@ -689,6 +816,58 @@
         "foreign"
       ]
     },
+    "ansi": {
+      "type": "registry",
+      "version": "7.0.0",
+      "integrity": "sha256-ZMB6HD+q9CXvn9fRCmJ8dvuDrOVHcjombL3oNOerVnE=",
+      "dependencies": [
+        "foldable-traversable",
+        "lists",
+        "strings"
+      ]
+    },
+    "argonaut-codecs": {
+      "type": "registry",
+      "version": "9.1.0",
+      "integrity": "sha256-N6efXByUeg848ompEqJfVvZuZPfdRYDGlTDFn0G0Oh8=",
+      "dependencies": [
+        "argonaut-core",
+        "arrays",
+        "effect",
+        "foreign-object",
+        "identity",
+        "integers",
+        "maybe",
+        "nonempty",
+        "ordered-collections",
+        "prelude",
+        "record"
+      ]
+    },
+    "argonaut-core": {
+      "type": "registry",
+      "version": "7.0.0",
+      "integrity": "sha256-RC82GfAjItydxrO24cdX373KHVZiLqybu19b5X8u7B4=",
+      "dependencies": [
+        "arrays",
+        "control",
+        "either",
+        "foreign-object",
+        "functions",
+        "gen",
+        "maybe",
+        "nonempty",
+        "prelude",
+        "strings",
+        "tailrec"
+      ]
+    },
+    "arraybuffer-types": {
+      "type": "registry",
+      "version": "3.0.2",
+      "integrity": "sha256-mQKokysYVkooS4uXbO+yovmV/s8b138Ws3zQvOwIHRA=",
+      "dependencies": []
+    },
     "arrays": {
       "type": "registry",
       "version": "7.3.0",
@@ -710,6 +889,19 @@
         "unsafe-coerce"
       ]
     },
+    "avar": {
+      "type": "registry",
+      "version": "5.0.1",
+      "integrity": "sha256-f+bRR3qQPa/GVe4UbLQiJBy7+PzJkUCwT6qNn0UlkMY=",
+      "dependencies": [
+        "aff",
+        "effect",
+        "either",
+        "exceptions",
+        "functions",
+        "maybe"
+      ]
+    },
     "bifunctors": {
       "type": "registry",
       "version": "6.0.0",
@@ -720,6 +912,20 @@
         "newtype",
         "prelude",
         "tuples"
+      ]
+    },
+    "catenable-lists": {
+      "type": "registry",
+      "version": "7.0.0",
+      "integrity": "sha256-76vYENhwF4BWTBsjeLuErCH2jqVT4M3R1HX+4RwSftA=",
+      "dependencies": [
+        "control",
+        "foldable-traversable",
+        "lists",
+        "maybe",
+        "prelude",
+        "tuples",
+        "unfoldable"
       ]
     },
     "console": {
@@ -852,6 +1058,14 @@
         "unsafe-coerce"
       ]
     },
+    "exitcodes": {
+      "type": "registry",
+      "version": "4.0.0",
+      "integrity": "sha256-4wxViTbyOoyKJ/WaRGI6+hZmgMKI5Miv16lSwefiLSM=",
+      "dependencies": [
+        "enums"
+      ]
+    },
     "foldable-traversable": {
       "type": "registry",
       "version": "6.0.0",
@@ -884,6 +1098,54 @@
         "prelude",
         "strings",
         "transformers"
+      ]
+    },
+    "foreign-object": {
+      "type": "registry",
+      "version": "4.1.0",
+      "integrity": "sha256-q24okj6mT+yGHYQ+ei/pYPj5ih6sTbu7eDv/WU56JVo=",
+      "dependencies": [
+        "arrays",
+        "foldable-traversable",
+        "functions",
+        "gen",
+        "lists",
+        "maybe",
+        "prelude",
+        "st",
+        "tailrec",
+        "tuples",
+        "typelevel-prelude",
+        "unfoldable"
+      ]
+    },
+    "fork": {
+      "type": "registry",
+      "version": "6.0.0",
+      "integrity": "sha256-X7u0SuCvFbLbzuNEKLBNuWjmcroqMqit4xEzpQwAP7E=",
+      "dependencies": [
+        "aff"
+      ]
+    },
+    "free": {
+      "type": "registry",
+      "version": "7.1.0",
+      "integrity": "sha256-JAumgEsGSzJCNLD8AaFvuX7CpqS5yruCngi6yI7+V5k=",
+      "dependencies": [
+        "catenable-lists",
+        "control",
+        "distributive",
+        "either",
+        "exists",
+        "foldable-traversable",
+        "invariant",
+        "lazy",
+        "maybe",
+        "prelude",
+        "tailrec",
+        "transformers",
+        "tuples",
+        "unsafe-coerce"
       ]
     },
     "functions": {
@@ -1033,6 +1295,16 @@
         "prelude"
       ]
     },
+    "mmorph": {
+      "type": "registry",
+      "version": "7.0.0",
+      "integrity": "sha256-urZlZNNqGeQFe5D/ClHlR8QgGBNHTMFPtJ5S5IpflTQ=",
+      "dependencies": [
+        "free",
+        "functors",
+        "transformers"
+      ]
+    },
     "newtype": {
       "type": "registry",
       "version": "5.0.0",
@@ -1040,6 +1312,102 @@
       "dependencies": [
         "prelude",
         "safe-coerce"
+      ]
+    },
+    "node-buffer": {
+      "type": "registry",
+      "version": "9.0.0",
+      "integrity": "sha256-PWE2DJ5ruBLCmeA/fUiuySEFmUJ/VuRfyrnCuVZBlu4=",
+      "dependencies": [
+        "arraybuffer-types",
+        "effect",
+        "maybe",
+        "nullable",
+        "st",
+        "unsafe-coerce"
+      ]
+    },
+    "node-event-emitter": {
+      "type": "registry",
+      "version": "3.0.0",
+      "integrity": "sha256-Qw0MjsT4xRH2j2i4K8JmRjcMKnH5z1Cw39t00q4LE4w=",
+      "dependencies": [
+        "effect",
+        "either",
+        "functions",
+        "maybe",
+        "nullable",
+        "prelude",
+        "unsafe-coerce"
+      ]
+    },
+    "node-fs": {
+      "type": "registry",
+      "version": "9.2.0",
+      "integrity": "sha256-Sg0vkXycEzkEerX6hLccz21Ygd9w1+QSk1thotRZPGI=",
+      "dependencies": [
+        "datetime",
+        "effect",
+        "either",
+        "enums",
+        "exceptions",
+        "functions",
+        "integers",
+        "js-date",
+        "maybe",
+        "node-buffer",
+        "node-path",
+        "node-streams",
+        "nullable",
+        "partial",
+        "prelude",
+        "strings",
+        "unsafe-coerce"
+      ]
+    },
+    "node-path": {
+      "type": "registry",
+      "version": "5.0.1",
+      "integrity": "sha256-ePOElFamHkffhwJcS0Ozq4A14rflnkasFU6X2B8/yXs=",
+      "dependencies": [
+        "effect"
+      ]
+    },
+    "node-process": {
+      "type": "registry",
+      "version": "11.2.0",
+      "integrity": "sha256-+2MQDYChjGbVbapCyJtuWYwD41jk+BntF/kcOTKBMVs=",
+      "dependencies": [
+        "effect",
+        "foreign",
+        "foreign-object",
+        "maybe",
+        "node-event-emitter",
+        "node-streams",
+        "posix-types",
+        "prelude",
+        "unsafe-coerce"
+      ]
+    },
+    "node-streams": {
+      "type": "registry",
+      "version": "9.0.1",
+      "integrity": "sha256-7RJ6RqjOlhW+QlDFQNUHlkCG/CuYTTLT8yary5jhhsU=",
+      "dependencies": [
+        "aff",
+        "arrays",
+        "effect",
+        "either",
+        "exceptions",
+        "maybe",
+        "node-buffer",
+        "node-event-emitter",
+        "nullable",
+        "prelude",
+        "refs",
+        "st",
+        "tailrec",
+        "unsafe-coerce"
       ]
     },
     "nonempty": {
@@ -1081,6 +1449,59 @@
       "dependencies": [
         "functions",
         "maybe"
+      ]
+    },
+    "open-memoize": {
+      "type": "registry",
+      "version": "6.2.0",
+      "integrity": "sha256-p1m7wF3aHQ80yUvqMs20OTMl496WS6YpKlmI2Nkg9j0=",
+      "dependencies": [
+        "either",
+        "integers",
+        "lazy",
+        "lists",
+        "maybe",
+        "partial",
+        "prelude",
+        "strings",
+        "tuples"
+      ]
+    },
+    "optparse": {
+      "type": "registry",
+      "version": "5.0.1",
+      "integrity": "sha256-cEzEkNW4q0gZlXl4z0zn+H2vs6l2UAp7NPHCsois73k=",
+      "dependencies": [
+        "aff",
+        "arrays",
+        "bifunctors",
+        "console",
+        "control",
+        "effect",
+        "either",
+        "enums",
+        "exists",
+        "exitcodes",
+        "foldable-traversable",
+        "free",
+        "gen",
+        "integers",
+        "lazy",
+        "lists",
+        "maybe",
+        "newtype",
+        "node-buffer",
+        "node-process",
+        "node-streams",
+        "nonempty",
+        "numbers",
+        "open-memoize",
+        "partial",
+        "prelude",
+        "strings",
+        "tailrec",
+        "transformers",
+        "tuples"
       ]
     },
     "ordered-collections": {
@@ -1134,6 +1555,29 @@
       "integrity": "sha256-fwXerld6Xw1VkReh8yeQsdtLVrjfGiVuC5bA1Wyo/J4=",
       "dependencies": []
     },
+    "pipes": {
+      "type": "registry",
+      "version": "8.0.0",
+      "integrity": "sha256-kvfqGM4cPA/wCcBHbp5psouFw5dZGvku2462x7ZBwSY=",
+      "dependencies": [
+        "aff",
+        "lists",
+        "mmorph",
+        "prelude",
+        "tailrec",
+        "transformers",
+        "tuples"
+      ]
+    },
+    "posix-types": {
+      "type": "registry",
+      "version": "6.0.0",
+      "integrity": "sha256-ZfFz8RR1lee/o/Prccyeut3Q+9tYd08mlR72sIh6GzA=",
+      "dependencies": [
+        "maybe",
+        "prelude"
+      ]
+    },
     "prelude": {
       "type": "registry",
       "version": "6.0.2",
@@ -1156,13 +1600,58 @@
       ]
     },
     "react-basic": {
-      "type": "registry",
-      "version": "17.0.0",
-      "integrity": "sha256-xE5sL14ITpSRCbAnWrp7KAfbzv+Ft0rSaAnjkqKcSVY=",
+      "type": "local",
+      "path": "/home/srghma/projects/purescript-react-basic",
       "dependencies": [
         "effect",
+        "nullable",
         "prelude",
         "record"
+      ]
+    },
+    "react-basic-dom": {
+      "type": "local",
+      "path": "/home/srghma/projects/purescript-react-basic-dom",
+      "dependencies": [
+        "arrays",
+        "effect",
+        "foldable-traversable",
+        "foreign-object",
+        "maybe",
+        "nullable",
+        "prelude",
+        "react-basic",
+        "record",
+        "unsafe-coerce",
+        "web-dom",
+        "web-events",
+        "web-file",
+        "web-html"
+      ]
+    },
+    "react-testing-library": {
+      "type": "local",
+      "path": "/home/srghma/projects/purescript-react-testing-library",
+      "dependencies": [
+        "aff",
+        "aff-promise",
+        "control",
+        "effect",
+        "exceptions",
+        "foldable-traversable",
+        "foreign",
+        "functions",
+        "identity",
+        "maybe",
+        "prelude",
+        "react-basic",
+        "spec",
+        "strings",
+        "transformers",
+        "unsafe-coerce",
+        "web-dom",
+        "web-events",
+        "web-html"
       ]
     },
     "record": {
@@ -1190,6 +1679,85 @@
       "integrity": "sha256-a1ibQkiUcbODbLE/WAq7Ttbbh9ex+x33VCQ7GngKudU=",
       "dependencies": [
         "unsafe-coerce"
+      ]
+    },
+    "spec": {
+      "type": "registry",
+      "version": "8.1.1",
+      "integrity": "sha256-EM7UfQIaSgiw13LJ4ZASkfYmmRDKIlec3nYbGKFqGhk=",
+      "dependencies": [
+        "aff",
+        "ansi",
+        "arrays",
+        "avar",
+        "bifunctors",
+        "control",
+        "datetime",
+        "effect",
+        "either",
+        "exceptions",
+        "foldable-traversable",
+        "fork",
+        "identity",
+        "integers",
+        "lists",
+        "maybe",
+        "newtype",
+        "now",
+        "ordered-collections",
+        "parallel",
+        "pipes",
+        "prelude",
+        "refs",
+        "strings",
+        "tailrec",
+        "transformers",
+        "tuples"
+      ]
+    },
+    "spec-discovery": {
+      "type": "registry",
+      "version": "8.4.0",
+      "integrity": "sha256-ajaGtBe+WBnURPPxIfqyiBbxI9DvbCGpxpYYYrvi5nk=",
+      "dependencies": [
+        "aff",
+        "effect",
+        "foldable-traversable",
+        "prelude",
+        "spec",
+        "spec-node"
+      ]
+    },
+    "spec-node": {
+      "type": "registry",
+      "version": "0.0.3",
+      "integrity": "sha256-Bjzg6l4uOfMN/FV0SKuT1Mm8eMP9sloLGVcY/0MeMnI=",
+      "dependencies": [
+        "aff",
+        "argonaut-codecs",
+        "argonaut-core",
+        "arrays",
+        "control",
+        "datetime",
+        "effect",
+        "either",
+        "foldable-traversable",
+        "identity",
+        "integers",
+        "maybe",
+        "newtype",
+        "node-buffer",
+        "node-fs",
+        "node-process",
+        "now",
+        "numbers",
+        "optparse",
+        "ordered-collections",
+        "partial",
+        "prelude",
+        "spec",
+        "strings",
+        "tuples"
       ]
     },
     "st": {
@@ -1278,6 +1846,15 @@
       "version": "4.0.1",
       "integrity": "sha256-Hs9D6Y71zFi/b+qu5NSbuadUQXe5iv5iWx0226vOHUw=",
       "dependencies": []
+    },
+    "typelevel-prelude": {
+      "type": "registry",
+      "version": "7.0.0",
+      "integrity": "sha256-uFF2ph+vHcQpfPuPf2a3ukJDFmLhApmkpTMviHIWgJM=",
+      "dependencies": [
+        "prelude",
+        "type-equality"
+      ]
     },
     "unfoldable": {
       "type": "registry",

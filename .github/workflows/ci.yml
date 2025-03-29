@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up a PureScript toolchain
+        uses: purescript-contrib/setup-purescript@main
+        with:
+          purescript: "latest"
+          purs-tidy: "latest"
+          spago: "unstable"
+
+      - name: Cache PureScript dependencies
+        uses: actions/cache@v4
+        with:
+          key: ${{ runner.os }}-spago-${{ hashFiles('**/spago.lock') }}
+          path: |
+            .spago
+            output
+
+      - name: Build source
+        run: spago build --censor-stats --strict --ensure-ranges --pedantic-packages
+
+      - name: Run tests
+        run: spago test --offline --censor-stats --strict --pedantic-packages
+
+      - name: Verify formatting
+        run: purs-tidy check src test
