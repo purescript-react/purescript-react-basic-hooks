@@ -106,3 +106,39 @@ export function displayName(component) {
     ? component
     : component.displayName || "[unknown]";
 }
+
+export function useOptimistic_(tuple, state, updateFn) {
+  const [optimisticState, addOptimistic] = React.useOptimistic(state, updateFn);
+  if (!addOptimistic.hasOwnProperty("$$reactBasicHooks$$cachedAddOptimistic")) {
+    addOptimistic.$$reactBasicHooks$$cachedAddOptimistic = (action) => () =>
+      addOptimistic(action);
+  }
+  return tuple(optimisticState, addOptimistic.$$reactBasicHooks$$cachedAddOptimistic);
+}
+
+export function useActionState_(tuple3, fn, initialState) {
+  const [state, formAction, isPending] = React.useActionState(
+    fn,
+    initialState
+  );
+  if (!formAction.hasOwnProperty("$$reactBasicHooks$$cachedFormAction")) {
+    formAction.$$reactBasicHooks$$cachedFormAction = (formData) => () =>
+      formAction(formData);
+  }
+  return tuple3(state, formAction.$$reactBasicHooks$$cachedFormAction, isPending);
+}
+
+export function useActionStateWithPermalink_(tuple3, fn, initialState, permalink) {
+  const [state, formAction, isPending] = React.useActionState(
+    fn,
+    initialState,
+    permalink
+  );
+  if (!formAction.hasOwnProperty("$$reactBasicHooks$$cachedFormAction")) {
+    formAction.$$reactBasicHooks$$cachedFormAction = (formData) => () =>
+      formAction(formData);
+  }
+  return tuple3(state, formAction.$$reactBasicHooks$$cachedFormAction, isPending);
+}
+
+export const useEffectEvent_ = React.useEffectEvent || React.experimental_useEffectEvent;

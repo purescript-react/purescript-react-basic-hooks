@@ -5,12 +5,12 @@
   "main": "index.js",
   "module": "true",
   "dependencies": {
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
   },
   "devDependencies": {
-    "@testing-library/react": "^13.2.0",
-    "@testing-library/user-event": "^14.2.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.0",
     "bower": "^1.8.14",
     "global-jsdom": "^8.4.0",
     "jsdom": "^19.0.0",
