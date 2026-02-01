@@ -8,20 +8,27 @@ module React.Basic.Hooks.Aff
   , runAffReducer
   , noEffects
   , UseAffReducer(..)
+  , useAffActionState
+  , useAffActionStateWithPermalink
+  , UseAffActionState(..)
   ) where
 
 import Prelude
 
+import Control.Promise (Promise, fromAff)
 import Data.Either (Either(..))
 import Data.Foldable (for_)
-import Data.Function.Uncurried (Fn2, mkFn2, runFn2)
+import Data.Function.Uncurried (Fn2, Fn3, mkFn2, mkFn3, runFn2)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
+import Data.Nullable (Nullable, toNullable)
+import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Aff (Aff, Error, error, killFiber, launchAff, launchAff_, throwError, try)
 import Effect.Class (liftEffect)
+import Effect.Uncurried (EffectFn3, EffectFn4, runEffectFn3, runEffectFn4)
 import Effect.Unsafe (unsafePerformEffect)
-import React.Basic.Hooks (type (&), type (/\), Hook, Reducer, UnsafeReference(..), UseEffect, UseMemo, UseReducer, UseState, coerceHook, mkReducer, unsafeRenderEffect, useEffect, useMemo, useReducer, useState, (/\))
+import React.Basic.Hooks (type (&), type (/\), Hook, Reducer, UnsafeReference(..), UseActionState, UseEffect, UseMemo, UseReducer, UseState, coerceHook, mkReducer, unsafeHook, unsafeRenderEffect, useEffect, useMemo, useReducer, useState, (/\))
 import React.Basic.Hooks as React
 
 --| `useAff` is used for asynchronous effects or `Aff`. The asynchronous effect
@@ -174,3 +181,90 @@ noEffects ::
   , effects :: Array (Aff (Array action))
   }
 noEffects state = { state, effects: [] }
+
+--| Aff version of `useActionState` for managing async form actions.
+--| The action function receives the previous state and form data, and returns
+--| an `Aff` that resolves to the new state. React will automatically handle
+--| the pending state whilst the Aff is running.
+--|
+--| *Note: Aff failures are thrown as React errors. If you need to capture an
+--|   error state, incorporate it into your state type (e.g., `Either Error MyState`)!*
+--|
+--| ```purs
+--| state /\ formAction /\ isPending <- useAffActionState initialState \prevState formData -> do
+--|   result <- submitToServer formData
+--|   pure (processResult prevState result)
+--|
+--| pure $ R.button
+--|   { disabled: isPending
+--|   , onClick: handler_ (formAction myFormData)
+--|   }
+--| ```
+useAffActionState ::
+  forall state formData.
+  state ->
+  (state -> formData -> Aff state) ->
+  Hook (UseAffActionState state formData) (state /\ ((formData -> Effect Unit) /\ Boolean))
+useAffActionState initialState affFn =
+  coerceHook React.do
+    unsafeHook do
+      let affFnAsPromise prevState formData = fromAff (affFn prevState formData)
+      runEffectFn3 useAffActionState_
+        mkTuple3
+        affFnAsPromise
+        initialState
+  where
+  mkTuple3 :: forall a b c. Fn3 a b c (a /\ (b /\ c))
+  mkTuple3 = mkFn3 \a b c -> Tuple a (Tuple b c)
+
+--| Like `useAffActionState` but with a permalink for progressive enhancement.
+--| The form will submit to this URL if JavaScript is disabled.
+--|
+--| ```purs
+--| state /\ formAction /\ isPending <- useAffActionStateWithPermalink initialState affFn "/api/submit"
+--|
+--| pure $ R.form
+--|   { action: formAction
+--|   , children: [ ... ]
+--|   }
+--| ```
+useAffActionStateWithPermalink ::
+  forall state formData.
+  state ->
+  (state -> formData -> Aff state) ->
+  String ->
+  Hook (UseAffActionState state formData) (state /\ ((formData -> Effect Unit) /\ Boolean))
+useAffActionStateWithPermalink initialState affFn permalink =
+  coerceHook React.do
+    unsafeHook do
+      let affFnAsPromise prevState formData = fromAff (affFn prevState formData)
+      runEffectFn4 useAffActionStateWithPermalink_
+        mkTuple3
+        affFnAsPromise
+        initialState
+        permalink
+  where
+  mkTuple3 :: forall a b c. Fn3 a b c (a /\ (b /\ c))
+  mkTuple3 = mkFn3 \a b c -> Tuple a (Tuple b c)
+
+foreign import useAffActionState_ ::
+  forall state formData.
+  EffectFn3
+    (forall a b c. Fn3 a b c (a /\ (b /\ c)))
+    (state -> formData -> Effect (Promise state))
+    state
+    (state /\ ((formData -> Effect Unit) /\ Boolean))
+
+foreign import useAffActionStateWithPermalink_ ::
+  forall state formData.
+  EffectFn4
+    (forall a b c. Fn3 a b c (a /\ (b /\ c)))
+    (state -> formData -> Effect (Promise state))
+    state
+    String
+    (state /\ ((formData -> Effect Unit) /\ Boolean))
+
+newtype UseAffActionState state formData hooks
+  = UseAffActionState (hooks & UseActionState state formData)
+
+derive instance ntUseAffActionState :: Newtype (UseAffActionState state formData hooks) _

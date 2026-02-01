@@ -51,6 +51,13 @@ module React.Basic.Hooks
   , useSyncExternalStore
   , useSyncExternalStore'
   , UseSyncExternalStore
+  , useOptimistic
+  , UseOptimistic
+  , useActionState
+  , useActionStateWithPermalink
+  , UseActionState
+  , useEffectEvent
+  , UseEffectEvent
   , UnsafeReference(..)
   , displayName
   , module React.Basic.Hooks.Internal
@@ -61,14 +68,14 @@ module React.Basic.Hooks
 import Prelude hiding (bind, discard)
 
 import Data.Bifunctor (rmap)
-import Data.Function.Uncurried (Fn2, mkFn2, runFn2)
+import Data.Function.Uncurried (Fn2, Fn3, mkFn2, mkFn3, runFn2, runFn3)
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
-import Data.Nullable (Nullable, toMaybe)
+import Data.Nullable (Nullable, toMaybe, toNullable)
 import Data.Tuple (Tuple(..))
 import Data.Tuple.Nested (type (/\), (/\))
 import Effect (Effect)
-import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, mkEffectFn1, runEffectFn1, runEffectFn2, runEffectFn3)
+import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, EffectFn4, mkEffectFn1, mkEffectFn2, runEffectFn1, runEffectFn2, runEffectFn3, runEffectFn4)
 import Prelude (bind) as Prelude
 import Prim.Row (class Lacks)
 import React.Basic (JSX, ReactComponent, ReactContext, Ref, consumer, contextConsumer, contextProvider, createContext, element, elementKeyed, empty, keyed, fragment, provider)
@@ -420,6 +427,111 @@ useSyncExternalStore' subscribe getSnapshot =
   unsafeHook $
     runEffectFn2 useSyncExternalStore2_ (mkEffectFn1 subscribe) getSnapshot
 
+foreign import data UseOptimistic :: Type -> Type -> Type -> Type
+
+--| Optimistically update state before an async action completes.
+--| The optimistic state automatically reverts when the action finishes.
+--|
+--| ```purs
+--| optimisticMessages /\ addOptimisticMessage <- useOptimistic messages \state newMessage ->
+--|   Array.snoc state newMessage
+--|
+--| let handleSend = do
+--|       addOptimisticMessage newMessage
+--|       sendToServer newMessage
+--| ```
+useOptimistic ::
+  forall state action.
+  state ->
+  (state -> action -> state) ->
+  Hook (UseOptimistic state action) (state /\ (action -> Effect Unit))
+useOptimistic state updateFn =
+  unsafeHook do
+    runEffectFn3 useOptimistic_
+      (mkFn2 Tuple)
+      state
+      (mkFn2 updateFn)
+
+foreign import data UseActionState :: Type -> Type -> Type -> Type
+
+--| Manage form actions with built-in pending state and error handling.
+--| The action function receives the previous state and form data.
+--|
+--| ```purs
+--| state /\ formAction /\ isPending <- useActionState initialState updateFn
+--|
+--| pure $ R.form
+--|   { children:
+--|       [ R.button
+--|           { disabled: isPending
+--|           , onClick: handler_ (formAction myFormData)
+--|           }
+--|       ]
+--|   }
+--| ```
+useActionState ::
+  forall state formData.
+  state ->
+  (state -> formData -> Effect state) ->
+  Hook (UseActionState state formData) (state /\ ((formData -> Effect Unit) /\ Boolean))
+useActionState initialState fn =
+  unsafeHook do
+    runEffectFn3 useActionState_
+      mkTuple3
+      (mkEffectFn2 fn)
+      initialState
+  where
+  mkTuple3 :: forall a b c. Fn3 a b c (a /\ (b /\ c))
+  mkTuple3 = mkFn3 \a b c -> Tuple a (Tuple b c)
+
+--| Like `useActionState` but with a permalink for progressive enhancement.
+--| The form will submit to this URL if JavaScript is disabled.
+--|
+--| ```purs
+--| state /\ formAction /\ isPending <- useActionStateWithPermalink initialState updateFn "/api/submit"
+--|
+--| pure $ R.form
+--|   { action: formAction
+--|   , children: [ ... ]
+--|   }
+--| ```
+useActionStateWithPermalink ::
+  forall state formData.
+  state ->
+  (state -> formData -> Effect state) ->
+  String ->
+  Hook (UseActionState state formData) (state /\ ((formData -> Effect Unit) /\ Boolean))
+useActionStateWithPermalink initialState fn permalink =
+  unsafeHook do
+    runEffectFn4 useActionStateWithPermalink_
+      mkTuple3
+      (mkEffectFn2 fn)
+      initialState
+      permalink
+  where
+  mkTuple3 :: forall a b c. Fn3 a b c (a /\ (b /\ c))
+  mkTuple3 = mkFn3 \a b c -> Tuple a (Tuple b c)
+
+foreign import data UseEffectEvent :: Type -> Type -> Type
+
+--| Extract non-reactive logic from Effects. The returned function can access
+--| the latest props and state without causing the Effect to re-run.
+--|
+--| ```purs
+--| onClick <- useEffectEvent handleClick
+--|
+--| useEffect url do
+--|   -- onClick can use latest state without re-running when state changes
+--|   onClick unit
+--|   pure mempty
+--| ```
+useEffectEvent ::
+  forall a b.
+  (a -> Effect b) ->
+  Hook (UseEffectEvent a) (a -> Effect b)
+useEffectEvent callback =
+  unsafeHook (runEffectFn1 useEffectEvent_ callback)
+
 newtype UnsafeReference a
   = UnsafeReference a
 
@@ -576,3 +688,34 @@ foreign import useSyncExternalStore3_ :: forall a. EffectFn3
   (Effect a) -- getSnapshot
   (Effect a) -- getServerSnapshot
   a
+
+foreign import useOptimistic_ ::
+  forall state action.
+  EffectFn3
+    (forall a b. Fn2 a b (a /\ b))
+    state
+    (Fn2 state action state)
+    (state /\ (action -> Effect Unit))
+
+foreign import useActionState_ ::
+  forall state formData.
+  EffectFn3
+    (forall a b c. Fn3 a b c (a /\ (b /\ c)))
+    (EffectFn2 state formData state)
+    state
+    (state /\ ((formData -> Effect Unit) /\ Boolean))
+
+foreign import useActionStateWithPermalink_ ::
+  forall state formData.
+  EffectFn4
+    (forall a b c. Fn3 a b c (a /\ (b /\ c)))
+    (EffectFn2 state formData state)
+    state
+    String
+    (state /\ ((formData -> Effect Unit) /\ Boolean))
+
+foreign import useEffectEvent_ ::
+  forall a b.
+  EffectFn1
+    (a -> Effect b)
+    (a -> Effect b)
