@@ -125,19 +125,120 @@ mkComponent :: Component Props
 mkComponent = do
   component "Component" \{ url, onSuccess } -> React.do
     count /\ setCount <- useState 0
-    
+
     -- onSuccess can use the latest count without re-running the effect
     onSuccessEvent <- useEffectEvent \data -> do
       onSuccess data count
-    
+
     -- Effect only re-runs when url changes, not when count changes
     useEffect url do
       response <- fetchData url
       onSuccessEvent response
       pure mempty
-    
+
     pure $ R.div_ [ ... ]
 ```
+
+## React 19 Components
+
+**Note:** These components require React 19.2+ experimental/canary versions. They are not available in stable React 19.0.x releases.
+
+### Activity
+
+The `Activity` component lets you hide and restore the UI and internal state of its children while preserving their state and DOM. Available in `React.Basic.Hooks.Activity`.
+
+```purs
+import React.Basic.Hooks.Activity (activity, ActivityMode(..))
+
+mkTabPanel :: Component Props
+mkTabPanel = do
+  component "TabPanel" \{ activeTab } -> React.do
+    pure $ R.div_
+      [ activity
+          { mode: if activeTab == "tab1" then Visible else Hidden
+          , children: [ tab1Content ]
+          }
+      , activity
+          { mode: if activeTab == "tab2" then Visible else Hidden
+          , children: [ tab2Content ]
+          }
+      ]
+```
+
+**Key Features:**
+- Preserves component state when hidden (unlike conditional rendering)
+- Hides children using CSS `display: none`
+- Effects are cleaned up when hidden and re-created when visible
+- Useful for tabs, sidebars, or pre-rendering content for faster navigation
+
+**Props:**
+- `mode` — `Visible` or `Hidden` (defaults to `Visible`)
+- `children` — Array of JSX elements to show/hide
+
+### ViewTransition
+
+The `ViewTransition` component animates DOM elements when they update inside a Transition. Available in `React.Basic.Hooks.ViewTransition`.
+
+```purs
+import React.Basic.Hooks.ViewTransition (viewTransition, AnimationValue(..))
+
+mkAnimatedList :: Component Props
+mkAnimatedList = do
+  component "AnimatedList" \{ items } -> React.do
+    _isPending /\ startTransition <- useTransition
+
+    let handleRemove item = startTransition do
+          removeItem item
+
+    pure $ R.div_ $ items <#> \item ->
+      viewTransition
+        { children: [ renderItem item ]
+        , enter: Just (ClassName "slide-in")
+        , exit: Just (ClassName "slide-out")
+        , update: Just (ClassName "fade")
+        , share: Nothing
+        , default: Nothing
+        , name: Just ("item-" <> item.id)
+        , onEnter: Nothing
+        , onExit: Nothing
+        , onUpdate: Nothing
+        , onShare: Nothing
+        }
+```
+
+**Animation Triggers:**
+- `enter` — Animates when `ViewTransition` is inserted
+- `exit` — Animates when `ViewTransition` is deleted
+- `update` — Animates when DOM mutations occur inside
+- `share` — Animates shared element transitions (requires `name` prop)
+- `default` — Fallback animation if no matching trigger
+
+**Shared Element Transitions:**
+```purs
+-- When the same name transitions between views, React creates a smooth shared animation
+viewTransition
+  { name: Just "hero-image"
+  , share: Just (ClassName "morph")
+  , children: [ thumbnail ]
+  , enter: Nothing, exit: Nothing, update: Nothing, default: Nothing
+  , onEnter: Nothing, onExit: Nothing, onUpdate: Nothing, onShare: Nothing
+  }
+
+-- Later, in a different view with the same name
+viewTransition
+  { name: Just "hero-image"
+  , share: Just (ClassName "morph")
+  , children: [ fullImage ]
+  , enter: Nothing, exit: Nothing, update: Nothing, default: Nothing
+  , onEnter: Nothing, onExit: Nothing, onUpdate: Nothing, onShare: Nothing
+  }
+```
+
+**Animation Values:**
+- `ClassName String` — CSS class name to apply
+- `AnimationMap (Object String)` — Map transition types to class names
+
+**Note:** ViewTransition only activates inside a `Transition` (via `startTransition`)
 
 ## Available Hooks
 
@@ -169,4 +270,6 @@ mkComponent = do
 - Custom hooks via `React.Basic.Hooks.Aff` for async effects
 - `React.Basic.Hooks.Suspense` for Suspense support
 - `React.Basic.Hooks.ErrorBoundary` for error boundaries
+- `React.Basic.Hooks.Activity` for hiding/showing UI while preserving state (React 19.2+)
+- `React.Basic.Hooks.ViewTransition` for animated transitions (React 19+)
 ```

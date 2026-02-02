@@ -14,6 +14,7 @@ You can edit this file as you like.
   , "either"
   , "exceptions"
   , "foldable-traversable"
+  , "foreign-object"
   , "functions"
   , "indexed-monad"
   , "integers"
@@ -29,6 +30,7 @@ You can edit this file as you like.
   , "type-equality"
   , "unsafe-coerce"
   , "unsafe-reference"
+  , "web-dom"
   , "web-html"
   ]
 , packages = ./packages.dhall
