@@ -16,6 +16,8 @@ If we prefer this API over the existing react-basic API, we may eventually repla
 - **React 16.8+**: Core hooks (useState, useEffect, useReducer, useRef, useContext, useMemo, useDebugValue, useLayoutEffect)
 - **React 18+**: useId, useTransition, useDeferredValue, useSyncExternalStore, useInsertionEffect
 - **React 19+**: useOptimistic, useActionState, useEffectEvent (experimental)
+- **React 19.2+**: Activity component
+- **React canary**: ViewTransition component (experimental)
 
 ## Example
 
@@ -125,18 +127,63 @@ mkComponent :: Component Props
 mkComponent = do
   component "Component" \{ url, onSuccess } -> React.do
     count /\ setCount <- useState 0
-    
+
     -- onSuccess can use the latest count without re-running the effect
     onSuccessEvent <- useEffectEvent \data -> do
       onSuccess data count
-    
+
     -- Effect only re-runs when url changes, not when count changes
     useEffect url do
       response <- fetchData url
       onSuccessEvent response
       pure mempty
-    
+
     pure $ R.div_ [ ... ]
+```
+
+## React 19.2 Components
+
+### Activity
+
+The `Activity` component lets you hide and restore the UI and internal state of its children while preserving their state and DOM. Available in `React.Basic.Hooks.Activity`. Requires React 19.2+.
+
+```purs
+import React.Basic.Hooks.Activity (activity, ActivityMode(..))
+
+mkTabPanel :: Component Props
+mkTabPanel = do
+  component "TabPanel" \{ activeTab } -> React.do
+    pure $ R.div_
+      [ activity
+          { mode: if activeTab == "tab1" then Visible else Hidden
+          , children: [ tab1Content ]
+          }
+      , activity
+          { mode: if activeTab == "tab2" then Visible else Hidden
+          , children: [ tab2Content ]
+          }
+      ]
+```
+
+### ViewTransition (Experimental)
+
+The `ViewTransition` component animates DOM elements when they update inside a Transition. Available in `React.Basic.Hooks.ViewTransition`. Requires React canary — this API is unstable and may change.
+
+```purs
+import React.Basic.Hooks.ViewTransition (viewTransition, viewTransitionDefaults, AnimationValue(..))
+
+mkAnimatedList :: Component Props
+mkAnimatedList = do
+  component "AnimatedList" \{ items } -> React.do
+    _isPending /\ startTransition <- useTransition
+
+    pure $ R.div_ $ items <#> \item ->
+      viewTransition $ viewTransitionDefaults
+        { children = [ renderItem item ]
+        , enter = Just (ClassName "slide-in")
+        , exit = Just (ClassName "slide-out")
+        , name = Just ("item-" <> item.id)
+        }
 ```
 
 ## Available Hooks
@@ -169,4 +216,6 @@ mkComponent = do
 - Custom hooks via `React.Basic.Hooks.Aff` for async effects
 - `React.Basic.Hooks.Suspense` for Suspense support
 - `React.Basic.Hooks.ErrorBoundary` for error boundaries
+- `React.Basic.Hooks.Activity` for hiding/showing UI while preserving state (React 19.2)
+- `React.Basic.Hooks.ViewTransition` for animated transitions (React canary, experimental)
 ```
