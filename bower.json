@@ -24,6 +24,7 @@
     "purescript-either": "^v6.1.0",
     "purescript-exceptions": "^v6.0.0",
     "purescript-foldable-traversable": "^v6.0.0",
+    "purescript-foreign-object": "^v4.0.0",
     "purescript-functions": "^v6.0.0",
     "purescript-indexed-monad": "^v2.1.0",
     "purescript-integers": "^v6.0.0",
