@@ -11,23 +11,19 @@
   "devDependencies": {
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.0",
-    "bower": "^1.8.14",
     "global-jsdom": "^8.4.0",
     "jsdom": "^19.0.0",
     "jsdom-global": "^3.0.2",
     "npm-run-all": "^4.1.5",
-    "pulp": "^16.0.1",
-    "purescript": "^0.15.2",
-    "spago": "^0.20.9"
+    "purescript": "^0.15.4",
+    "spago": "1.0.5"
   },
   "scripts": {
     "deps": "run-s deps:*",
     "deps:spago": "spago install",
-    "deps:pulp": "bower install",
     "build": "run-s build:*",
     "build:spago": "spago build",
-    "build:pulp": "pulp build -o output-pulp",
-    "test": "spago -x spago.test.dhall test",
+    "test": "spago test",
     "clean": "rm -rf .spago bower_components output output-pulp node_modules .pulp-cache .psci_modules"
   },
   "repository": {

@@ -1,0 +1,50 @@
+package:
+  name: react-basic-hooks
+  publish:
+    version: 9.1.2
+    license: Apache-2.0
+    location:
+      githubOwner: purescript-react
+      githubRepo: purescript-react-basic-hooks
+  dependencies:
+    - aff: ">=7.0.0 <8.0.0"
+    - aff-promise: ">=4.0.0 <5.0.0"
+    - bifunctors: ">=6.0.0 <7.0.0"
+    - console: ">=6.0.0 <7.0.0"
+    - control: ">=6.0.0 <7.0.0"
+    - datetime: ">=6.0.0 <7.0.0"
+    - effect: ">=4.0.0 <5.0.0"
+    - either: ">=6.1.0 <7.0.0"
+    - exceptions: ">=6.0.0 <7.0.0"
+    - foldable-traversable: ">=6.0.0 <7.0.0"
+    - foreign-object: ">=4.0.0 <5.0.0"
+    - functions: ">=6.0.0 <7.0.0"
+    - indexed-monad: ">=2.1.0 <3.0.0"
+    - integers: ">=6.0.0 <7.0.0"
+    - maybe: ">=6.0.0 <7.0.0"
+    - newtype: ">=5.0.0 <6.0.0"
+    - now: ">=6.0.0 <7.0.0"
+    - nullable: ">=6.0.0 <7.0.0"
+    - ordered-collections: ">=3.0.0 <4.0.0"
+    - prelude: ">=6.0.0 <7.0.0"
+    - react-basic: ">=17.0.0 <18.0.0"
+    - refs: ">=6.0.0 <7.0.0"
+    - tuples: ">=7.0.0 <8.0.0"
+    - type-equality: ">=4.0.1 <5.0.0"
+    - unsafe-coerce: ">=6.0.0 <7.0.0"
+    - unsafe-reference: ">=5.0.0 <6.0.0"
+    - web-html: ">=4.0.0 <5.0.0"
+  test:
+    main: Test.Main
+    dependencies:
+      - arrays: ">=7.0.0 <8.0.0"
+      - debug: ">=6.0.0 <7.0.0"
+      - foreign-object: ">=4.0.0 <5.0.0"
+      - react-basic-dom: ">=6.0.0 <7.0.0"
+      - react-testing-library: ">=4.0.1 <5.0.0"
+      - spec: ">=7.0.0 <8.0.0"
+      - spec-discovery: ">=8.0.0 <9.0.0"
+      - strings: ">=6.0.0 <7.0.0"
+      - tailrec: ">=6.0.0 <7.0.0"
+      - web-dom: ">=6.0.0 <7.0.0"
+workspace: {}
