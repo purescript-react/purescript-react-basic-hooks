@@ -38,7 +38,6 @@ package:
     main: Test.Main
     dependencies:
       - arrays: ">=7.0.0 <8.0.0"
-      - debug: ">=6.0.0 <7.0.0"
       - foreign-object: ">=4.0.0 <5.0.0"
       - react-basic-dom: ">=6.0.0 <7.0.0"
       - react-testing-library: ">=4.0.1 <5.0.0"
